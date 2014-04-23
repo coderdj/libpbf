@@ -1,0 +1,23 @@
+package pbf;
+
+message Event {
+    required int64      number   = 1;
+    required uint64     time     = 2;
+    
+    message Channel {
+        required int32  id       = 1;
+	optional int32  module   = 3;
+	
+	message Data {	
+	    required bytes  payload = 1;
+	    optional int64  time    = 2;
+	}
+	
+	repeated Data    data     = 2;
+    }
+    
+    repeated Channel    channel  = 3;
+    
+}
+
+    
