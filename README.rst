@@ -8,6 +8,7 @@ Protobuf File Format
 File format for based on Google protocol buffers.
 
 Author(s): Daniel Coderre, LHEP, University of Bern           
+daniel(dot)coderre(at)lhep(dot)unibe(dot)ch
 
 1. Brief 
 ----------------------------------
@@ -23,5 +24,5 @@ Flattered that you're interested.
 Contact
 ---------
 
-Please contact xe-daq@lngs.infn.it with any questions or praise.
+Please contact the author with any questions or praise.
 
