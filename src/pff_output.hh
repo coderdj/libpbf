@@ -125,11 +125,11 @@ class pff_output
    int write(u_int64_t timestamp=0);
    
    //
-   // int close_file();
+   // void close_file();
    //   : Write all events in the output buffer and close the file. Note: any events that were
    //     created but not closed will be lost!
    // 
-   int close_file();
+   void close_file();
    
  private:
    

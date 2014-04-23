@@ -149,3 +149,64 @@ int pff_output::write(u_int64_t timestamp)
    }//end event loop   
    return 0;
 }
+
+void pff_output::close_file()
+{
+   write();
+   if(m_protoCOut!=NULL) delete m_protoCOut;
+   if(m_protoOut!=NULL) delete m_protoOut;
+   m_protoOut = m_protoCOut = NULL;
+   if(m_outfile.is_open()) m_outfile.close();
+   return;
+}
+
+int pff_output::OpenNextFile()
+{
+   if(m_outfile.is_open()) close_file();
+   
+   string extension = ".pff";
+   stringstream fName;
+   fName<<m_sFilePathBase<<setfill('0')<<setw(6)<<sNum<<extension;
+   
+   m_outfile.open(fName.str().c_str(), ios::out | ios::trunc | ios::binary);
+   if(!m_outfile.is_open())  {
+      cerr<<"Failed to open outfile."<<endl;
+      return -1;
+   }
+   m_protoOut = new google::protobuf::io::OstreamOutputStream(&m_outfile);
+   m_protoCOut = new google::prtobuf::io::CodedOutputStream(m_protoOut);
+   return 0;
+}
+
+int pff_output::ParseOptions(string options)
+{
+   //possibles options
+   // n{int} num events per file
+   // z zip with snappy
+   // b{int} max buffer size
+   
+   //parse
+   vector<string> items;
+   stringstream ss(options);
+   string item;
+   while(getline(ss,item,':')){
+      if(!item.empty())
+	items.push_back(item);
+   }
+   
+   for(unsigned int x=0;x<items.size();x++)  {
+      if(items[x]=="z")
+	m_bCompress_snappy=true;
+      else if(items[x][0]=='n'){	      
+	 string num = items[x].substr(1,items[x].size()-1);
+	 istringstream(num) >> m_iEventsPerFile;
+      }
+      else if(items[x][0]=='b'){
+	 string num = items[x].substr(1,items[x].size()-1);
+	 istringstream(num) >> m_iMaxBufferSize;
+      }
+      else
+	cerr<<"WARNING: Unknown option."<<endl;
+   }
+   return 0;
+}
