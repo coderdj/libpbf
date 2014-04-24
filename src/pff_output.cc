@@ -17,6 +17,7 @@ pff_output::pff_output()
    m_protoOut=NULL;
    m_protoCOut=NULL;
    m_iCurrentHandle = m_iCurrentFileNumber = m_iEventsPerFile = m_iMaxBufferSize = 0;
+   m_uiEventNumber=0;
    m_bCompress_snappy=false;
 }
 
@@ -25,6 +26,7 @@ pff_output::pff_output(string path, string options)
    m_protoOut=NULL;
    m_protoCOut=NULL;
    m_iCurrentHandle = m_iCurrentFileNumber = m_iEventsPerFile = m_iMaxBufferSize = 0;
+   m_uiEventNumber = 0;
    m_bCompress_snappy=false;
    if(open_file(path,options)!=0)
      throw runtime_error("pff_output: Could not open file.");   
@@ -72,6 +74,7 @@ int pff_output::add_data(int handle, int channel, int module,  char* data,
    mc.channel = channel;
    InsertData idata;
   idata.timestamp = datatime;
+ 
    //compression with snappy
    if(m_bCompress_snappy)  {
       char* compressed = new char[snappy::MaxCompressedLength(dataSize)];
@@ -80,7 +83,7 @@ int pff_output::add_data(int handle, int channel, int module,  char* data,
 			  &compressedLength);
       idata.payload = compressed;
       idata.size = compressedLength;
-      delete[] data;
+      //delete[] data;
    }   
    //no compression
    else{	
@@ -126,16 +129,16 @@ int pff_output::write(u_int64_t timestamp)
       for(chIt = ev.channels.begin(); chIt!=ev.channels.end(); chIt++)	{
 	 
 	 //make channel obj
-	 pbf::Event_Channel pbChannel;
-	 pbChannel.set_id(chIt->first.channel);
+	 pbf::Event_Channel *pbChannel = pbEvent.add_channel();
+	 pbChannel->set_id(chIt->first.channel);
 	 if(chIt->first.module!=-1)
-	   pbChannel.set_module(chIt->first.module);
+	   pbChannel->set_module(chIt->first.module);
 	 
 	 //loop through data
 	 for(set<InsertData>::iterator dataIt = chIt->second.data.begin();
 	     dataIt!=chIt->second.data.end(); dataIt++)  {
-	    pbf::Event_Channel_Data *ecd = pbChannel.add_data();
-	    ecd->set_payload((*dataIt).payload,(*dataIt).size);
+	    pbf::Event_Channel_Data *ecd = pbChannel->add_data();
+	    ecd->set_payload((const void*)(*dataIt).payload,(*dataIt).size);
 	    if((*dataIt).timestamp!=0) ecd->set_time((*dataIt).timestamp);
 	    delete[] (*dataIt).payload;
 	 }//end data loop
@@ -148,25 +151,27 @@ int pff_output::write(u_int64_t timestamp)
       m_protoCOut->WriteVarint32(s.size());
       //write data
       m_protoCOut->WriteRaw(s.data(),s.size());
-      
-      m_setWriteBuffer.erase(it);
-      
+            
       //check if we went over the maximum file size
-      if((int)m_uiEventNumber > (m_iEventsPerFile * (m_iCurrentFileNumber+1))
+      if((int)m_uiEventNumber > (m_iEventsPerFile * (m_iCurrentFileNumber))
 	 && m_iEventsPerFile>0)	{
+	 cout<<"SWITCHING"<<endl;
 	 if(OpenNextFile()!=0) {
 	    cerr<<"Failed to open next file!"<<endl;
 	    return -1;
 	 }	 
+	 cout<<"SWITCHED"<<endl;
       }
+      set<InsertEvent>::iterator rmit = it;
       it++;
+      m_setWriteBuffer.erase(rmit);
    }//end event loop   
    return 0;
 }
 
-void pff_output::close_file()
+void pff_output::close_file(bool quiet)
 {
-   write();
+   if(!quiet) write();
    if(m_protoCOut!=NULL) delete m_protoCOut;
    if(m_protoOut!=NULL) delete m_protoOut;
    m_protoOut = NULL;
@@ -177,7 +182,7 @@ void pff_output::close_file()
 
 int pff_output::OpenNextFile()
 {
-   if(m_outfile.is_open()) close_file();
+   if(m_outfile.is_open()) close_file(true);
    
    string extension = ".pff";
    stringstream fName;
@@ -191,6 +196,7 @@ int pff_output::OpenNextFile()
    }
    m_protoOut = new google::protobuf::io::OstreamOutputStream(&m_outfile);
    m_protoCOut = new google::protobuf::io::CodedOutputStream(m_protoOut);
+   cout<<"Opened file "<<fName.str()<<endl;
    return 0;
 }
 

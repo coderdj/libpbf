@@ -140,11 +140,12 @@ class pff_output
    int write(u_int64_t timestamp=0);
    
    //
-   // void close_file();
+   // void close_file(bool quiet = false);
    //   : Write all events in the output buffer and close the file. Note: any events that were
-   //     created but not closed will be lost!
+   //     created but not closed will be lost! quiet determines if the buffer is written before
+   //     closing. true=no.
    // 
-   void close_file();
+   void close_file(bool quiet=false);
    
  private:
    
