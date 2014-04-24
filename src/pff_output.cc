@@ -13,12 +13,21 @@
 
 pff_output::pff_output()
 {
+   //DEFAULT VALUES
+   m_protoOut=NULL;
+   m_protoCOut=NULL;
+   m_iCurrentHandle = m_iCurrentFileNumber = m_iEventsPerFile = m_iMaxBufferSize = 0;
+   m_bCompress_snappy=false;
 }
 
 pff_output::pff_output(string path, string options)
 {
+   m_protoOut=NULL;
+   m_protoCOut=NULL;
+   m_iCurrentHandle = m_iCurrentFileNumber = m_iEventsPerFile = m_iMaxBufferSize = 0;
+   m_bCompress_snappy=false;
    if(open_file(path,options)!=0)
-     throw Exception("pff_output: Could not open file.");   
+     throw runtime_error("pff_output: Could not open file.");   
 }
 
 pff_output::~pff_output()
@@ -61,41 +70,43 @@ int pff_output::add_data(int handle, int channel, int module,  char* data,
    MCPair mc; 
    mc.module = module;
    mc.channel = channel;
-   pbf::Event_Channel_Data idata;
-   if(datatime!=0) idata.set_time(datatime);
+   InsertData idata;
+  idata.timestamp = datatime;
    //compression with snappy
    if(m_bCompress_snappy)  {
       char* compressed = new char[snappy::MaxCompressedLength(dataSize)];
       size_t compressedLength = 0;
       snappy::RawCompress((const char*)(data),dataSize,compressed,
 			  &compressedLength);
-      idata.set_data(compressed,compressedLength);
-      delete[] compressed;
+      idata.payload = compressed;
+      idata.size = compressedLength;
+      delete[] data;
    }   
    //no compression
-   else
-     idata.set_data(data,dataSize);
-   
-   m_mapOpenEvents[handle][mc].data.insert(idata);
+   else{	
+      idata.payload = data;
+      idata.size = dataSize;
+   }   
+   m_mapOpenEvents[handle].channels[mc].data.insert(idata);
 
    return 0;
 }
 
-int pff_output::CloseEvent(int handle, bool write=false)
+int pff_output::close_event(int handle, bool writeout)
 {  
    m_setWriteBuffer.insert(m_mapOpenEvents[handle]);
    map<int,InsertEvent>::iterator it;
    it = m_mapOpenEvents.find(handle);
    m_mapOpenEvents.erase(it);
    if(it==m_mapOpenEvents.end()) return -1;
-   if(write)
-     return write(-1);
+   if(writeout)
+     return write(0);
    return 0;
 }
 
 int pff_output::write(u_int64_t timestamp)
 {
-   if(!m_outfile.is_open()) return -1;
+   if(!m_outfile.is_open() || m_protoOut==NULL || m_protoCOut==NULL) return -1;
    
    set<InsertEvent>::iterator it = m_setWriteBuffer.begin();
    
@@ -112,24 +123,27 @@ int pff_output::write(u_int64_t timestamp)
       
       //loop though channels
       map<MCPair,InsertChannel>::iterator chIt;
-      for(chIt = ev.channels.begin(); chIt<ev.channels.end(); chIt++)	{
+      for(chIt = ev.channels.begin(); chIt!=ev.channels.end(); chIt++)	{
 	 
 	 //make channel obj
 	 pbf::Event_Channel pbChannel;
-	 pbChannel.set_channel(chIt->first.channel);
+	 pbChannel.set_id(chIt->first.channel);
 	 if(chIt->first.module!=-1)
 	   pbChannel.set_module(chIt->first.module);
 	 
 	 //loop through data
-	 for(set::iterator dataIt = chIt->second().data.begin(),
-	     dataIt<chIt->second().data.end(); dataIt++)  {
-	    pbChannel.set_data(*dataIt);
+	 for(set<InsertData>::iterator dataIt = chIt->second.data.begin();
+	     dataIt!=chIt->second.data.end(); dataIt++)  {
+	    pbf::Event_Channel_Data *ecd = pbChannel.add_data();
+	    ecd->set_payload((*dataIt).payload,(*dataIt).size);
+	    if((*dataIt).timestamp!=0) ecd->set_time((*dataIt).timestamp);
+	    delete[] (*dataIt).payload;
 	 }//end data loop
       }//end channel loop
       
       //create string with data
       string s="";
-      ev.SerializeToString(&s);
+      pbEvent.SerializeToString(&s);
       //write size
       m_protoCOut->WriteVarint32(s.size());
       //write data
@@ -138,8 +152,8 @@ int pff_output::write(u_int64_t timestamp)
       m_setWriteBuffer.erase(it);
       
       //check if we went over the maximum file size
-      if(m_uiEventNumber > (m_iEventsPerFile * (m_iCurrentFileNumber+1))
-	 && m_iEventsPerFile!=-1)	{
+      if((int)m_uiEventNumber > (m_iEventsPerFile * (m_iCurrentFileNumber+1))
+	 && m_iEventsPerFile>0)	{
 	 if(OpenNextFile()!=0) {
 	    cerr<<"Failed to open next file!"<<endl;
 	    return -1;
@@ -155,7 +169,8 @@ void pff_output::close_file()
    write();
    if(m_protoCOut!=NULL) delete m_protoCOut;
    if(m_protoOut!=NULL) delete m_protoOut;
-   m_protoOut = m_protoCOut = NULL;
+   m_protoOut = NULL;
+   m_protoCOut = NULL;
    if(m_outfile.is_open()) m_outfile.close();
    return;
 }
@@ -166,7 +181,8 @@ int pff_output::OpenNextFile()
    
    string extension = ".pff";
    stringstream fName;
-   fName<<m_sFilePathBase<<setfill('0')<<setw(6)<<sNum<<extension;
+   fName<<m_sFilePathBase<<setfill('0')<<setw(6)<<m_iCurrentFileNumber<<extension;
+   m_iCurrentFileNumber++;
    
    m_outfile.open(fName.str().c_str(), ios::out | ios::trunc | ios::binary);
    if(!m_outfile.is_open())  {
@@ -174,7 +190,7 @@ int pff_output::OpenNextFile()
       return -1;
    }
    m_protoOut = new google::protobuf::io::OstreamOutputStream(&m_outfile);
-   m_protoCOut = new google::prtobuf::io::CodedOutputStream(m_protoOut);
+   m_protoCOut = new google::protobuf::io::CodedOutputStream(m_protoOut);
    return 0;
 }
 

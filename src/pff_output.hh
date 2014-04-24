@@ -13,8 +13,19 @@
 
 //
 // includes
+#include <vector>
+#include <string>
+#include <map>
+#include <set>
+#include <iomanip>
+#include <sstream>
+#include <fstream>
+#include <iostream>
+#include "protocDef.pb.h"
+#include <google/protobuf/io/coded_stream.h>
 #include <google/protobuf/io/zero_copy_stream_impl.h>
-#include "protobufDef.pb.h"
+#include <fcntl.h>
+#include <snappy.h>
 
 using namespace std;
 
@@ -25,10 +36,12 @@ using namespace std;
 //      
 struct InsertData
 {
-   pbf::Event_Channel_Data data;
-   bool operator<(const InsertData& rhs)  {
-      if(!data.has_time) return true;
-      return (data.time<rhs.data.time() ? true : false);
+   char* payload;
+   size_t size;
+   u_int64_t timestamp;
+   bool operator<(const InsertData& rhs)  const {
+      if(timestamp==0) return true;
+      return (timestamp<rhs.timestamp ? true : false);
    }
    
 };
@@ -40,7 +53,7 @@ struct MCPair
 {
    int module;
    int channel;
-   bool operator<(const MCPair& rhs) {
+   bool operator<(const MCPair& rhs) const {
       if(module==rhs.module)
 	return (channel<rhs.channel ? true : false);
       return (module < rhs.module ? true : false);
@@ -49,7 +62,7 @@ struct MCPair
 struct InsertEvent
 {
    u_int64_t timestamp;
-   bool operator<(const InsertBuff& rhs)  {
+   bool operator<(const InsertEvent& rhs)  const {
       return (timestamp<rhs.timestamp ? true : false);
    }
    map<MCPair,InsertChannel> channels;
@@ -104,7 +117,9 @@ class pff_output
    // int add_data(int handle, int channel, int module, char* data, longInt dataTime=-1)
    //   : Add the data contained in the data buffer to an event. dataTime represents the 
    //     time of the first sample in the data buffer. The default value of -1 means that
-   //     the first sample has the same time as the event timestamp.
+   //     the first sample has the same time as the event timestamp. It is important
+   //     to note that these functions TAKE OWNERSHIP of char* data and will delete
+   //     it when they are finished with it.
    // 
    int add_data(int handle, int channel, char* data, size_t dataSize, u_int64_t dataTime=0);
    int add_data(int handle, int channel, int module, char* data, size_t dataSize, u_int64_t dataTime=0);
@@ -116,7 +131,7 @@ class pff_output
    //     file it opened. Setting the write flag to true puts the event directly into the file
    //     along with any other contents of the output buffer.
    // 
-   int close_event(int handle, bool write=false);
+   int close_event(int handle, bool writeout=false);
    //
    // int write(u_int64_t timestamp=0)
    //   : Write all events up to timestamp. If timestamp is set to zero, write 
