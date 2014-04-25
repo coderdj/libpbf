@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
+
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <title>libpff by coderdj</title>
+  </head>
+
+  <body>
+    <header>
+      <div class="inner">
+        <h1>libpff</h1>
+        <h2>File format based on Google protocol buffers. Suitable for storage of waveforms or other binned data.</h2>
+        <a href="https://github.com/coderdj/pff" class="button"><small>View project on</small>GitHub</a>
+      </div>
+    </header>
+
+    <div id="content-wrapper">
+      <div class="inner clearfix">
+        <section id="main-content">
+          <h3>
+<a name="welcome-to-the-protocol-buffer-file-format" class="anchor" href="#welcome-to-the-protocol-buffer-file-format"><span class="octicon octicon-link"></span></a>Welcome to the protocol buffer file format</h3>
+
+<p>This file format is designed for the storage of binned data, for example waveforms. Some of the key design features are: </p>
+
+<ul>
+<li>Simple interface for writing and reading</li>
+<li>Fast, dynamic compression for lightweight files</li>
+<li>Internal data sorting allowing parallel input</li>
+<li>Clean, easily extendable code</li>
+</ul><p>This short document should teach you all you need to know to use the class. </p>
+
+<h3>
+<a name="installation" class="anchor" href="#installation"><span class="octicon octicon-link"></span></a>Installation</h3>
+
+<p>Fetch the code from github.</p>
+
+<p><code>git clone https://github.com/coderdj/pff</code></p>
+
+<p>There are a few dependencies. You need the build classes (a compiler, make, etc.), as well as the protocol buffer and snappy libraries from google. On Ubuntu you can install this with:</p>
+
+<p><code>apt-get install build-essential libsnappy-dev libprotobuf-dev</code></p>
+
+<p>For now you will have to re-generate the protocol buffer classes with your version of libprotobuf. At a later stage this step will be built into the build scripts. See the protoc/README.rst for more info.</p>
+
+<p><code>cd protoc
+ protoc -I=./ --cpp_out=../src protocDef.proto
+</code></p>
+
+<p>Now that everything's ready go the top level directory type 'make'. The library should appear in the current directory. You will have to make the library and headers find-able by your compiler in order to use it. </p>
+
+<h3>
+<a name="writing-to-files" class="anchor" href="#writing-to-files"><span class="octicon octicon-link"></span></a>Writing to Files</h3>
+
+<p>The basic procedure for writing to files is: </p>
+
+<ol>
+<li>Open the file</li>
+<li>Open an event</li>
+<li>Put data into the event</li>
+<li>Close the event</li>
+<li>Go back to step 2 until you're out of data</li>
+<li>Close the file</li>
+</ol><p>You can have multiple events open at the same time. The events will be placed into an output buffer and sorted by time stamp when they are closed. Data within an event is sorted by channel number (or, optionally, by module/channel). Raw data within a channel can again be sorted by time stamp.</p>
+
+<p>Let's look at each step individually. The code used here is also illustrated with an example file builder in the examples directory. </p>
+
+<p>First, opening the file is done simply with the following code:</p>
+
+<p><code>pff_output outfile(); 
+ int s = outfile.open_file(outputPath, outputOptions);     //outputPath and outputOptions are strings
+ if(s!=0) cout&lt;&lt;"Error opening file"&lt;&lt;endl;
+</code></p>
+
+<p>or, using the constructor:</p>
+
+<p><code>pff_output *outfile;
+ try{
+    outfile = new pff_output(outputPath, outputOptions);
+ } 
+ catch(...){
+    cout&lt;&lt;"Error opening file!"&lt;&lt;endl;
+ }
+</code></p>
+
+<h3>
+<a name="authors-and-contributors" class="anchor" href="#authors-and-contributors"><span class="octicon octicon-link"></span></a>Authors and Contributors</h3>
+
+<p>Written by Daniel Coderre (<a href="https://github.com/coderdj" class="user-mention">@coderdj</a>), 2014. </p>
+
+<h3>
+<a name="support-or-contact" class="anchor" href="#support-or-contact"><span class="octicon octicon-link"></span></a>Support or Contact</h3>
+
+<p>Having trouble? File an issue report at <a href="http://github.com/coderdj/pff">http://github.com/coderdj/pff</a>.</p>
+        </section>
+
+        <aside id="sidebar">
+          <a href="https://github.com/coderdj/pff/zipball/master" class="button">
+            <small>Download</small>
+            .zip file
+          </a>
+          <a href="https://github.com/coderdj/pff/tarball/master" class="button">
+            <small>Download</small>
+            .tar.gz file
+          </a>
+
+          <p class="repo-owner"><a href="https://github.com/coderdj/pff"></a> is maintained by <a href="https://github.com/coderdj">coderdj</a>.</p>
+
+          <p>This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the Architect theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.</p>
+        </aside>
+      </div>
+    </div>
+
+  
+  </body>
+</html>
