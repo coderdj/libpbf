@@ -53,9 +53,9 @@
 
 <p>For now you will have to re-generate the protocol buffer classes with your version of libprotobuf. At a later stage this step will be built into the build scripts. See the protoc/README.rst for more info.</p>
 
-<p><code>cd protoc
- protoc -I=./ --cpp_out=../src protocDef.proto
-</code></p>
+<pre><code>cd protoc
+protoc -I=./ --cpp_out=../src protocDef.proto
+</code></pre>
 
 <p>Now that everything's ready go the top level directory type 'make'. The library should appear in the current directory. You will have to make the library and headers find-able by your compiler in order to use it. </p>
 
@@ -77,21 +77,21 @@
 
 <p>First, opening the file is done simply with the following code:</p>
 
-<p><code>pff_output outfile(); 
- int s = outfile.open_file(outputPath, outputOptions);     //outputPath and outputOptions are strings
- if(s!=0) cout&lt;&lt;"Error opening file"&lt;&lt;endl;
-</code></p>
+<div class="highlight highlight-c++"><pre> <span class="n">pff_output</span> <span class="nf">outfile</span><span class="p">();</span> 
+ <span class="kt">int</span> <span class="n">s</span> <span class="o">=</span> <span class="n">outfile</span><span class="p">.</span><span class="n">open_file</span><span class="p">(</span><span class="n">outputPath</span><span class="p">,</span> <span class="n">outputOptions</span><span class="p">);</span>     <span class="c1">//outputPath and outputOptions are strings</span>
+ <span class="k">if</span><span class="p">(</span><span class="n">s</span><span class="o">!=</span><span class="mi">0</span><span class="p">)</span> <span class="n">cout</span><span class="o">&lt;&lt;</span><span class="s">"Error opening file"</span><span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span>
+</pre></div>
 
 <p>or, using the constructor:</p>
 
-<p><code>pff_output *outfile;
- try{
-    outfile = new pff_output(outputPath, outputOptions);
- } 
- catch(...){
-    cout&lt;&lt;"Error opening file!"&lt;&lt;endl;
- }
-</code></p>
+<div class="highlight highlight-c++"><pre><span class="n">pff_output</span> <span class="o">*</span><span class="n">outfile</span><span class="p">;</span>
+<span class="n">try</span><span class="p">{</span>
+    <span class="n">outfile</span> <span class="o">=</span> <span class="k">new</span> <span class="n">pff_output</span><span class="p">(</span><span class="n">outputPath</span><span class="p">,</span> <span class="n">outputOptions</span><span class="p">);</span>
+<span class="p">}</span> 
+<span class="k">catch</span><span class="p">(...){</span>
+    <span class="n">cout</span><span class="o">&lt;&lt;</span><span class="s">"Error opening file!"</span><span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
 
 <h3>
 <a name="authors-and-contributors" class="anchor" href="#authors-and-contributors"><span class="octicon octicon-link"></span></a>Authors and Contributors</h3>
