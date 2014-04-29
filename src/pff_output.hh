@@ -27,6 +27,7 @@
 #include <google/protobuf/io/zero_copy_stream_impl.h>
 #include <fcntl.h>
 #include <snappy.h>
+#include <pthread.h>
 
 using namespace std;
 
@@ -75,6 +76,7 @@ struct MCPair
 };
 struct InsertEvent
 {
+   pthread_mutex_t EventMutex;
    u_int64_t timestamp;
    bool operator<(const InsertEvent& rhs)  const {
       return (timestamp<rhs.timestamp ? true : false);
@@ -205,6 +207,10 @@ class pff_output
    ofstream            m_outfile;
    google::protobuf::io::ZeroCopyOutputStream *m_protoOut;
    google::protobuf::io::CodedOutputStream    *m_protoCOut;
-   
+
+   //thread-safe stuff
+   pthread_mutex_t    m_xEventBufferMutex;
+   pthread_mutex_t    m_xWriteBufferMutex;
+   pthread_mutex_t    m_xFileLock;
 };
 #endif

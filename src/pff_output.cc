@@ -33,10 +33,16 @@ void pff_output::SetDefaults()
    m_HeaderInfo.started_by=m_HeaderInfo.run_mode=m_HeaderInfo.notes="";
    m_HeaderInfo.start_date=m_HeaderInfo.creation_date=0;
    bHeaderWritten=false;
+   pthread_mutex_init(&m_xEventBufferMutex,NULL);
+   pthread_mutex_init(&m_xFileLock,NULL);
+   pthread_mutex_init(&m_xWriteBufferMutex,NULL);
 }
 
 pff_output::~pff_output()
 {
+   pthread_mutex_destroy(&m_xEventBufferMutex);
+   pthread_mutex_destroy(&m_xFileLock);
+   pthread_mutex_destroy(&m_xWriteBufferMutex);
    write();
    m_mapOpenEvents.clear();
    close_file();
@@ -55,11 +61,17 @@ int pff_output::open_file(string path, string options)
 
 int pff_output::create_event(unsigned long long int timestamp, int &handle)
 {
+   pthread_mutex_lock(&m_xEventBufferMutex);
+      
    InsertEvent tEvent;
+   pthread_mutex_init(&tEvent.EventMutex,NULL);
    tEvent.timestamp=timestamp;
    m_mapOpenEvents.insert(pair<int,InsertEvent>(m_iCurrentHandle, tEvent));
    handle=m_iCurrentHandle;
    m_iCurrentHandle++;
+   
+   pthread_mutex_unlock(&m_xEventBufferMutex);
+   
    return 0;
 }
 
@@ -94,17 +106,25 @@ int pff_output::add_data(int handle, int channel, int module,  char* data,
       idata.payload = data;
       idata.size = dataSize;
    }   
+   pthread_mutex_lock(&m_mapOpenEvents[handle].EventMutex);
    m_mapOpenEvents[handle].channels[mc].data.insert(idata);
-
+   pthread_mutex_unlock(&m_mapOpenEvents[handle].EventMutex);
+   
    return 0;
 }
 
 int pff_output::close_event(int handle, bool writeout)
 {  
+   pthread_mutex_lock(&m_xWriteBufferMutex);
+   pthread_mutex_lock(&m_xEventBufferMutex);
    m_setWriteBuffer.insert(m_mapOpenEvents[handle]);
    map<int,InsertEvent>::iterator it;
    it = m_mapOpenEvents.find(handle);
    m_mapOpenEvents.erase(it);
+
+   pthread_mutex_unlock(&m_xWriteBufferMutex);
+   pthread_mutex_unlock(&m_xEventBufferMutex);
+   
    if(it==m_mapOpenEvents.end()) return -1;
    if(writeout)
      return write(0);
@@ -121,6 +141,12 @@ int pff_output::write(u_int64_t timestamp)
 	 return -1;
       }
    }
+
+   if(pthread_mutex_lock(&m_xWriteBufferMutex)!=0) return -1;
+   if(pthread_mutex_lock(&m_xFileLock)!=0)   {
+      pthread_mutex_unlock(&m_xFileLock);
+      return -1;
+   }
    
    set<InsertEvent>::iterator it = m_setWriteBuffer.begin();
    
@@ -128,6 +154,7 @@ int pff_output::write(u_int64_t timestamp)
       InsertEvent ev = *it;
       if(timestamp!=0 && timestamp>ev.timestamp)
 	break;
+      pthread_mutex_lock(& ev.EventMutex);
       
       //write event
       pbf::Event pbEvent;
@@ -167,33 +194,47 @@ int pff_output::write(u_int64_t timestamp)
       if((int)m_uiEventNumber > (m_iEventsPerFile * (m_iCurrentFileNumber))
 	 && m_iEventsPerFile>0)	{
 	 cout<<"SWITCHING"<<endl;
+	 pthread_mutex_unlock(&m_xEventBufferMutex);
+	 pthread_mutex_unlock(&m_xFileLock);	 
 	 if(OpenNextFile()!=0) {
 	    cerr<<"Failed to open next file!"<<endl;
+	    pthread_mutex_unlock(& ev.EventMutex);
 	    return -1;
 	 }	 
 	 cout<<"SWITCHED"<<endl;
+	 pthread_mutex_lock(&m_xEventBufferMutex);
+	 pthread_mutex_lock(&m_xFileLock);	 
       }
       set<InsertEvent>::iterator rmit = it;
       it++;
+      pthread_mutex_destroy(& ev.EventMutex);
       m_setWriteBuffer.erase(rmit);
    }//end event loop   
+   
+   pthread_mutex_unlock(&m_xWriteBufferMutex);
+   pthread_mutex_unlock(&m_xFileLock);
+   
    return 0;
 }
 
 void pff_output::close_file(bool quiet)
 {
    if(!quiet) write();
+   pthread_mutex_lock(&m_xFileLock);   
    if(m_protoCOut!=NULL) delete m_protoCOut;
    if(m_protoOut!=NULL) delete m_protoOut;
    m_protoOut = NULL;
    m_protoCOut = NULL;
    if(m_outfile.is_open()) m_outfile.close();
+   pthread_mutex_unlock(&m_xFileLock);   
    return;
 }
 
 int pff_output::WriteHeader()
 {
    if(!m_outfile.is_open() || m_protoOut==NULL || m_protoCOut==NULL) return -1;
+
+   pthread_mutex_lock(&m_xFileLock);
    
    //Check header values and set defaults where applicable
    //Optional fields with no value provided will not be written
@@ -223,6 +264,8 @@ int pff_output::WriteHeader()
    m_protoCOut->WriteRaw(s.data(),s.size());
    
    bHeaderWritten = true;
+
+   pthread_mutex_unlock(&m_xFileLock);
    
    return 0;
 }
@@ -230,6 +273,8 @@ int pff_output::WriteHeader()
 int pff_output::OpenNextFile()
 {
    if(m_outfile.is_open()) close_file(true);
+
+   pthread_mutex_lock(&m_xFileLock);
    
    string extension = ".pff";
    stringstream fName;
@@ -239,11 +284,14 @@ int pff_output::OpenNextFile()
    m_outfile.open(fName.str().c_str(), ios::out | ios::trunc | ios::binary);
    if(!m_outfile.is_open())  {
       cerr<<"Failed to open outfile."<<endl;
+      pthread_mutex_unlock(&m_xFileLock);      
       return -1;
    }
    m_protoOut = new google::protobuf::io::OstreamOutputStream(&m_outfile);
    m_protoCOut = new google::protobuf::io::CodedOutputStream(m_protoOut);
    bHeaderWritten=false;
+   pthread_mutex_unlock(&m_xFileLock);
+   
    return 0;
 }
 
