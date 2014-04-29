@@ -93,6 +93,9 @@ class pff_input
    int get_data(int channelindex, int dataindex, char *&data, 
 		unsigned int &size, long long int &dataTime);
    
+   HeaderData Header()  {
+      return m_Header;
+   };
    
    void close_file();
    

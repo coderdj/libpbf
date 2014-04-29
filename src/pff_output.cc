@@ -193,7 +193,6 @@ int pff_output::write(u_int64_t timestamp)
       //check if we went over the maximum file size
       if((int)m_uiEventNumber > (m_iEventsPerFile * (m_iCurrentFileNumber))
 	 && m_iEventsPerFile>0)	{
-	 cout<<"SWITCHING"<<endl;
 	 pthread_mutex_unlock(&m_xEventBufferMutex);
 	 pthread_mutex_unlock(&m_xFileLock);	 
 	 if(OpenNextFile()!=0) {
@@ -201,7 +200,6 @@ int pff_output::write(u_int64_t timestamp)
 	    pthread_mutex_unlock(& ev.EventMutex);
 	    return -1;
 	 }	 
-	 cout<<"SWITCHED"<<endl;
 	 pthread_mutex_lock(&m_xEventBufferMutex);
 	 pthread_mutex_lock(&m_xFileLock);	 
       }

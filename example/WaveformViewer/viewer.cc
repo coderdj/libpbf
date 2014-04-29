@@ -2,6 +2,8 @@
 #include <sstream>
 #include <iostream>
 #include <TH1F.h>
+#include <TCanvas.h>
+#include <TApplication.h>
 #include <pff_input.hh>
 
 using namespace std;
@@ -43,13 +45,43 @@ int main(int argc, char *argv[])
    }//end while   
       
    cout<<"Event "<<iEventNumber<<" Path "<<sPath<<endl;
-   return 0;
+
    pff_input FileReader;
    if(FileReader.open_file(sPath)!=0)  {
       cout<<"Bad path"<<endl;
       return -1;
    }
+   cout<<FileReader.Header().creation_date<<endl;
+   
+   TApplication *theApp = new TApplication("App",&argc,argv);
+   TCanvas *can = new TCanvas("can","can");
+   can->cd();
+   TH1F *waveform = NULL;
+   while(FileReader.get_next_event()==0)  {
+      for(int x=0;x<FileReader.num_channels();x++)	{
+	 char *data;
+	 unsigned int datasize;
+	 long long int dataTime;
+       
+	 for(int y=0;y<FileReader.num_data(x);y++){	      
+	    if(waveform!=NULL) delete waveform;
+	    
+	    FileReader.get_data(x,y,data,datasize,dataTime);
+	    u_int32_t *easierData = (u_int32_t*)data;
+	    cout<<"Got some data with size "<<datasize<<endl;
+	    waveform = new TH1F("waveform","",datasize/4,0,datasize/4);
+	    for(int z=0;z<datasize/4;z+=2)  {
+	       waveform->SetBinContent(z,easierData[z/2]&0xFFFF);
+	       waveform->SetBinContent(z+1,(easierData[z/2]>>16)&0xFFFF);
+	    }
+	    waveform->Draw();
+	    can->Update();
+	    char dat;
+	    cin>>dat;
+	 }	    
+      }      
+   }
    
    //now loop though events
-   
+   return 0;
 };
