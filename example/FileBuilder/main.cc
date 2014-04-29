@@ -89,7 +89,6 @@ int main(int argc, char *argv[])
       if(!doc.isEmpty())  { //write to file
 	 
 	 u_int64_t triggertime = doc.getField("time").numberLong();
-//	 iLastTriggerTime=-1;
 	 if(triggertime!=iLastTriggerTime)  {
 	    //close previous event
 	    if(eventHandle!=-1) {		 
@@ -112,15 +111,9 @@ int main(int argc, char *argv[])
 	 u_int32_t *raw = (u_int32_t*)doc.getField("data").binData(size);
 	 size_t extractLength;
 	 snappy::GetUncompressedLength((const char*)raw,(size_t)size,&extractLength);
-	 //u_int32_t *extracted = new u_int32_t[extractLength/4];
 	 char  extracted[extractLength];
 	 snappy::RawUncompress((const char*)raw,(size_t)size,(char*)extracted);
-	 
-//	 if(eventHandle==500){	      
-//	    for(unsigned int x=0;x<extractLength;x++)
-//	      cout<<hex<<(u_int32_t)extracted[x]<<endl;
-//	 }
-	 
+	 	 
 	 outfile.add_data(eventHandle,channel,module,(char*)extracted,extractLength);
 	 if(eventHandle%1000==0) cout<<eventHandle<<endl;
       }

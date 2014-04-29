@@ -8,28 +8,31 @@
 // 
 // *************************************************************
 
-#include <stdexcept>
 #include "pff_output.hh"
 
 pff_output::pff_output()
 {
-   //DEFAULT VALUES
-   m_protoOut=NULL;
-   m_protoCOut=NULL;
-   m_iCurrentHandle = m_iCurrentFileNumber = m_iEventsPerFile = m_iMaxBufferSize = 0;
-   m_uiEventNumber=0;
-   m_bCompress_snappy=false;
+   SetDefaults();
 }
 
 pff_output::pff_output(string path, string options)
 {
-   m_protoOut=NULL;
-   m_protoCOut=NULL;
-   m_iCurrentHandle = m_iCurrentFileNumber = m_iEventsPerFile = m_iMaxBufferSize = 0;
-   m_uiEventNumber = 0;
-   m_bCompress_snappy=false;
+   SetDefaults();
    if(open_file(path,options)!=0)
      throw runtime_error("pff_output: Could not open file.");   
+}
+
+void pff_output::SetDefaults()
+{
+   m_protoOut = NULL;
+   m_protoCOut = NULL;
+   m_iCurrentHandle = m_iCurrentFileNumber = m_iEventsPerFile = m_iMaxBufferSize = 0;
+   m_uiEventNumber = 0;
+   m_bCompress_snappy = false;
+   m_HeaderInfo.identifier="default";
+   m_HeaderInfo.started_by=m_HeaderInfo.run_mode=m_HeaderInfo.notes="";
+   m_HeaderInfo.start_date=m_HeaderInfo.creation_date=0;
+   bHeaderWritten=false;
 }
 
 pff_output::~pff_output()
@@ -44,6 +47,7 @@ int pff_output::open_file(string path, string options)
    if(ParseOptions(options)!=0)
      cerr<<"Warning: pff file initialized with bad options string!"<<endl;
    
+   m_iCurrentFileNumber =0;
    m_sFilePathBase = path;
    
    return OpenNextFile();
@@ -110,6 +114,13 @@ int pff_output::close_event(int handle, bool writeout)
 int pff_output::write(u_int64_t timestamp)
 {
    if(!m_outfile.is_open() || m_protoOut==NULL || m_protoCOut==NULL) return -1;
+
+   if(!bHeaderWritten) {
+      if(WriteHeader()!=0) {
+	 cerr<<"Error writing file header"<<endl;
+	 return -1;
+      }
+   }
    
    set<InsertEvent>::iterator it = m_setWriteBuffer.begin();
    
@@ -180,6 +191,42 @@ void pff_output::close_file(bool quiet)
    return;
 }
 
+int pff_output::WriteHeader()
+{
+   if(!m_outfile.is_open() || m_protoOut==NULL || m_protoCOut==NULL) return -1;
+   
+   //Check header values and set defaults where applicable
+   //Optional fields with no value provided will not be written
+   pbf::Header header;
+   
+   header.set_zipped(m_bCompress_snappy);
+   time_t starttime=0;
+   time(&starttime);
+   header.set_creationdate((long long int)starttime);
+   if(m_HeaderInfo.start_date==0) header.set_startdate((long long int) starttime);
+   else header.set_startdate(m_HeaderInfo.start_date);
+   header.set_filenumber(m_iCurrentFileNumber-1);
+   header.set_runidentifier(m_HeaderInfo.identifier);
+   
+   //optional fields
+   if(m_HeaderInfo.run_mode!="") header.set_runmode(m_HeaderInfo.run_mode);
+   if(m_HeaderInfo.started_by!="") header.set_startedby(m_HeaderInfo.started_by);
+   if(m_HeaderInfo.notes!="") header.set_notes(m_HeaderInfo.notes);
+   
+   //Write to file
+   //create string with data
+   string s="";
+   header.SerializeToString(&s);
+   //write size
+   m_protoCOut->WriteVarint32(s.size());
+   //write data
+   m_protoCOut->WriteRaw(s.data(),s.size());
+   
+   bHeaderWritten = true;
+   
+   return 0;
+}
+
 int pff_output::OpenNextFile()
 {
    if(m_outfile.is_open()) close_file(true);
@@ -196,7 +243,7 @@ int pff_output::OpenNextFile()
    }
    m_protoOut = new google::protobuf::io::OstreamOutputStream(&m_outfile);
    m_protoCOut = new google::protobuf::io::CodedOutputStream(m_protoOut);
-   cout<<"Opened file "<<fName.str()<<endl;
+   bHeaderWritten=false;
    return 0;
 }
 

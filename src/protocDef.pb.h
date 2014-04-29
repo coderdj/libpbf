@@ -36,6 +36,7 @@ void protobuf_ShutdownFile_protocDef_2eproto();
 class Event;
 class Event_Channel;
 class Event_Channel_Data;
+class Header;
 
 // ===================================================================
 
@@ -348,6 +349,178 @@ class Event : public ::google::protobuf::Message {
   void InitAsDefaultInstance();
   static Event* default_instance_;
 };
+// -------------------------------------------------------------------
+
+class Header : public ::google::protobuf::Message {
+ public:
+  Header();
+  virtual ~Header();
+
+  Header(const Header& from);
+
+  inline Header& operator=(const Header& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const Header& default_instance();
+
+  void Swap(Header* other);
+
+  // implements Message ----------------------------------------------
+
+  Header* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const Header& from);
+  void MergeFrom(const Header& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // required bool zipped = 1;
+  inline bool has_zipped() const;
+  inline void clear_zipped();
+  static const int kZippedFieldNumber = 1;
+  inline bool zipped() const;
+  inline void set_zipped(bool value);
+
+  // required int64 startdate = 2;
+  inline bool has_startdate() const;
+  inline void clear_startdate();
+  static const int kStartdateFieldNumber = 2;
+  inline ::google::protobuf::int64 startdate() const;
+  inline void set_startdate(::google::protobuf::int64 value);
+
+  // required int64 creationdate = 3;
+  inline bool has_creationdate() const;
+  inline void clear_creationdate();
+  static const int kCreationdateFieldNumber = 3;
+  inline ::google::protobuf::int64 creationdate() const;
+  inline void set_creationdate(::google::protobuf::int64 value);
+
+  // required string runidentifier = 4;
+  inline bool has_runidentifier() const;
+  inline void clear_runidentifier();
+  static const int kRunidentifierFieldNumber = 4;
+  inline const ::std::string& runidentifier() const;
+  inline void set_runidentifier(const ::std::string& value);
+  inline void set_runidentifier(const char* value);
+  inline void set_runidentifier(const char* value, size_t size);
+  inline ::std::string* mutable_runidentifier();
+  inline ::std::string* release_runidentifier();
+  inline void set_allocated_runidentifier(::std::string* runidentifier);
+
+  // required int32 filenumber = 5;
+  inline bool has_filenumber() const;
+  inline void clear_filenumber();
+  static const int kFilenumberFieldNumber = 5;
+  inline ::google::protobuf::int32 filenumber() const;
+  inline void set_filenumber(::google::protobuf::int32 value);
+
+  // optional string runmode = 6;
+  inline bool has_runmode() const;
+  inline void clear_runmode();
+  static const int kRunmodeFieldNumber = 6;
+  inline const ::std::string& runmode() const;
+  inline void set_runmode(const ::std::string& value);
+  inline void set_runmode(const char* value);
+  inline void set_runmode(const char* value, size_t size);
+  inline ::std::string* mutable_runmode();
+  inline ::std::string* release_runmode();
+  inline void set_allocated_runmode(::std::string* runmode);
+
+  // optional string startedby = 7;
+  inline bool has_startedby() const;
+  inline void clear_startedby();
+  static const int kStartedbyFieldNumber = 7;
+  inline const ::std::string& startedby() const;
+  inline void set_startedby(const ::std::string& value);
+  inline void set_startedby(const char* value);
+  inline void set_startedby(const char* value, size_t size);
+  inline ::std::string* mutable_startedby();
+  inline ::std::string* release_startedby();
+  inline void set_allocated_startedby(::std::string* startedby);
+
+  // optional string notes = 8;
+  inline bool has_notes() const;
+  inline void clear_notes();
+  static const int kNotesFieldNumber = 8;
+  inline const ::std::string& notes() const;
+  inline void set_notes(const ::std::string& value);
+  inline void set_notes(const char* value);
+  inline void set_notes(const char* value, size_t size);
+  inline ::std::string* mutable_notes();
+  inline ::std::string* release_notes();
+  inline void set_allocated_notes(::std::string* notes);
+
+  // @@protoc_insertion_point(class_scope:pbf.Header)
+ private:
+  inline void set_has_zipped();
+  inline void clear_has_zipped();
+  inline void set_has_startdate();
+  inline void clear_has_startdate();
+  inline void set_has_creationdate();
+  inline void clear_has_creationdate();
+  inline void set_has_runidentifier();
+  inline void clear_has_runidentifier();
+  inline void set_has_filenumber();
+  inline void clear_has_filenumber();
+  inline void set_has_runmode();
+  inline void clear_has_runmode();
+  inline void set_has_startedby();
+  inline void clear_has_startedby();
+  inline void set_has_notes();
+  inline void clear_has_notes();
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::int64 startdate_;
+  ::google::protobuf::int64 creationdate_;
+  bool zipped_;
+  ::google::protobuf::int32 filenumber_;
+  ::std::string* runidentifier_;
+  ::std::string* runmode_;
+  ::std::string* startedby_;
+  ::std::string* notes_;
+
+  mutable int _cached_size_;
+  ::google::protobuf::uint32 _has_bits_[(8 + 31) / 32];
+
+  friend void  protobuf_AddDesc_protocDef_2eproto();
+  friend void protobuf_AssignDesc_protocDef_2eproto();
+  friend void protobuf_ShutdownFile_protocDef_2eproto();
+
+  void InitAsDefaultInstance();
+  static Header* default_instance_;
+};
 // ===================================================================
 
 
@@ -591,6 +764,378 @@ Event::channel() const {
 inline ::google::protobuf::RepeatedPtrField< ::pbf::Event_Channel >*
 Event::mutable_channel() {
   return &channel_;
+}
+
+// -------------------------------------------------------------------
+
+// Header
+
+// required bool zipped = 1;
+inline bool Header::has_zipped() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void Header::set_has_zipped() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void Header::clear_has_zipped() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void Header::clear_zipped() {
+  zipped_ = false;
+  clear_has_zipped();
+}
+inline bool Header::zipped() const {
+  return zipped_;
+}
+inline void Header::set_zipped(bool value) {
+  set_has_zipped();
+  zipped_ = value;
+}
+
+// required int64 startdate = 2;
+inline bool Header::has_startdate() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void Header::set_has_startdate() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void Header::clear_has_startdate() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline void Header::clear_startdate() {
+  startdate_ = GOOGLE_LONGLONG(0);
+  clear_has_startdate();
+}
+inline ::google::protobuf::int64 Header::startdate() const {
+  return startdate_;
+}
+inline void Header::set_startdate(::google::protobuf::int64 value) {
+  set_has_startdate();
+  startdate_ = value;
+}
+
+// required int64 creationdate = 3;
+inline bool Header::has_creationdate() const {
+  return (_has_bits_[0] & 0x00000004u) != 0;
+}
+inline void Header::set_has_creationdate() {
+  _has_bits_[0] |= 0x00000004u;
+}
+inline void Header::clear_has_creationdate() {
+  _has_bits_[0] &= ~0x00000004u;
+}
+inline void Header::clear_creationdate() {
+  creationdate_ = GOOGLE_LONGLONG(0);
+  clear_has_creationdate();
+}
+inline ::google::protobuf::int64 Header::creationdate() const {
+  return creationdate_;
+}
+inline void Header::set_creationdate(::google::protobuf::int64 value) {
+  set_has_creationdate();
+  creationdate_ = value;
+}
+
+// required string runidentifier = 4;
+inline bool Header::has_runidentifier() const {
+  return (_has_bits_[0] & 0x00000008u) != 0;
+}
+inline void Header::set_has_runidentifier() {
+  _has_bits_[0] |= 0x00000008u;
+}
+inline void Header::clear_has_runidentifier() {
+  _has_bits_[0] &= ~0x00000008u;
+}
+inline void Header::clear_runidentifier() {
+  if (runidentifier_ != &::google::protobuf::internal::kEmptyString) {
+    runidentifier_->clear();
+  }
+  clear_has_runidentifier();
+}
+inline const ::std::string& Header::runidentifier() const {
+  return *runidentifier_;
+}
+inline void Header::set_runidentifier(const ::std::string& value) {
+  set_has_runidentifier();
+  if (runidentifier_ == &::google::protobuf::internal::kEmptyString) {
+    runidentifier_ = new ::std::string;
+  }
+  runidentifier_->assign(value);
+}
+inline void Header::set_runidentifier(const char* value) {
+  set_has_runidentifier();
+  if (runidentifier_ == &::google::protobuf::internal::kEmptyString) {
+    runidentifier_ = new ::std::string;
+  }
+  runidentifier_->assign(value);
+}
+inline void Header::set_runidentifier(const char* value, size_t size) {
+  set_has_runidentifier();
+  if (runidentifier_ == &::google::protobuf::internal::kEmptyString) {
+    runidentifier_ = new ::std::string;
+  }
+  runidentifier_->assign(reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* Header::mutable_runidentifier() {
+  set_has_runidentifier();
+  if (runidentifier_ == &::google::protobuf::internal::kEmptyString) {
+    runidentifier_ = new ::std::string;
+  }
+  return runidentifier_;
+}
+inline ::std::string* Header::release_runidentifier() {
+  clear_has_runidentifier();
+  if (runidentifier_ == &::google::protobuf::internal::kEmptyString) {
+    return NULL;
+  } else {
+    ::std::string* temp = runidentifier_;
+    runidentifier_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+    return temp;
+  }
+}
+inline void Header::set_allocated_runidentifier(::std::string* runidentifier) {
+  if (runidentifier_ != &::google::protobuf::internal::kEmptyString) {
+    delete runidentifier_;
+  }
+  if (runidentifier) {
+    set_has_runidentifier();
+    runidentifier_ = runidentifier;
+  } else {
+    clear_has_runidentifier();
+    runidentifier_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  }
+}
+
+// required int32 filenumber = 5;
+inline bool Header::has_filenumber() const {
+  return (_has_bits_[0] & 0x00000010u) != 0;
+}
+inline void Header::set_has_filenumber() {
+  _has_bits_[0] |= 0x00000010u;
+}
+inline void Header::clear_has_filenumber() {
+  _has_bits_[0] &= ~0x00000010u;
+}
+inline void Header::clear_filenumber() {
+  filenumber_ = 0;
+  clear_has_filenumber();
+}
+inline ::google::protobuf::int32 Header::filenumber() const {
+  return filenumber_;
+}
+inline void Header::set_filenumber(::google::protobuf::int32 value) {
+  set_has_filenumber();
+  filenumber_ = value;
+}
+
+// optional string runmode = 6;
+inline bool Header::has_runmode() const {
+  return (_has_bits_[0] & 0x00000020u) != 0;
+}
+inline void Header::set_has_runmode() {
+  _has_bits_[0] |= 0x00000020u;
+}
+inline void Header::clear_has_runmode() {
+  _has_bits_[0] &= ~0x00000020u;
+}
+inline void Header::clear_runmode() {
+  if (runmode_ != &::google::protobuf::internal::kEmptyString) {
+    runmode_->clear();
+  }
+  clear_has_runmode();
+}
+inline const ::std::string& Header::runmode() const {
+  return *runmode_;
+}
+inline void Header::set_runmode(const ::std::string& value) {
+  set_has_runmode();
+  if (runmode_ == &::google::protobuf::internal::kEmptyString) {
+    runmode_ = new ::std::string;
+  }
+  runmode_->assign(value);
+}
+inline void Header::set_runmode(const char* value) {
+  set_has_runmode();
+  if (runmode_ == &::google::protobuf::internal::kEmptyString) {
+    runmode_ = new ::std::string;
+  }
+  runmode_->assign(value);
+}
+inline void Header::set_runmode(const char* value, size_t size) {
+  set_has_runmode();
+  if (runmode_ == &::google::protobuf::internal::kEmptyString) {
+    runmode_ = new ::std::string;
+  }
+  runmode_->assign(reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* Header::mutable_runmode() {
+  set_has_runmode();
+  if (runmode_ == &::google::protobuf::internal::kEmptyString) {
+    runmode_ = new ::std::string;
+  }
+  return runmode_;
+}
+inline ::std::string* Header::release_runmode() {
+  clear_has_runmode();
+  if (runmode_ == &::google::protobuf::internal::kEmptyString) {
+    return NULL;
+  } else {
+    ::std::string* temp = runmode_;
+    runmode_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+    return temp;
+  }
+}
+inline void Header::set_allocated_runmode(::std::string* runmode) {
+  if (runmode_ != &::google::protobuf::internal::kEmptyString) {
+    delete runmode_;
+  }
+  if (runmode) {
+    set_has_runmode();
+    runmode_ = runmode;
+  } else {
+    clear_has_runmode();
+    runmode_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  }
+}
+
+// optional string startedby = 7;
+inline bool Header::has_startedby() const {
+  return (_has_bits_[0] & 0x00000040u) != 0;
+}
+inline void Header::set_has_startedby() {
+  _has_bits_[0] |= 0x00000040u;
+}
+inline void Header::clear_has_startedby() {
+  _has_bits_[0] &= ~0x00000040u;
+}
+inline void Header::clear_startedby() {
+  if (startedby_ != &::google::protobuf::internal::kEmptyString) {
+    startedby_->clear();
+  }
+  clear_has_startedby();
+}
+inline const ::std::string& Header::startedby() const {
+  return *startedby_;
+}
+inline void Header::set_startedby(const ::std::string& value) {
+  set_has_startedby();
+  if (startedby_ == &::google::protobuf::internal::kEmptyString) {
+    startedby_ = new ::std::string;
+  }
+  startedby_->assign(value);
+}
+inline void Header::set_startedby(const char* value) {
+  set_has_startedby();
+  if (startedby_ == &::google::protobuf::internal::kEmptyString) {
+    startedby_ = new ::std::string;
+  }
+  startedby_->assign(value);
+}
+inline void Header::set_startedby(const char* value, size_t size) {
+  set_has_startedby();
+  if (startedby_ == &::google::protobuf::internal::kEmptyString) {
+    startedby_ = new ::std::string;
+  }
+  startedby_->assign(reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* Header::mutable_startedby() {
+  set_has_startedby();
+  if (startedby_ == &::google::protobuf::internal::kEmptyString) {
+    startedby_ = new ::std::string;
+  }
+  return startedby_;
+}
+inline ::std::string* Header::release_startedby() {
+  clear_has_startedby();
+  if (startedby_ == &::google::protobuf::internal::kEmptyString) {
+    return NULL;
+  } else {
+    ::std::string* temp = startedby_;
+    startedby_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+    return temp;
+  }
+}
+inline void Header::set_allocated_startedby(::std::string* startedby) {
+  if (startedby_ != &::google::protobuf::internal::kEmptyString) {
+    delete startedby_;
+  }
+  if (startedby) {
+    set_has_startedby();
+    startedby_ = startedby;
+  } else {
+    clear_has_startedby();
+    startedby_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  }
+}
+
+// optional string notes = 8;
+inline bool Header::has_notes() const {
+  return (_has_bits_[0] & 0x00000080u) != 0;
+}
+inline void Header::set_has_notes() {
+  _has_bits_[0] |= 0x00000080u;
+}
+inline void Header::clear_has_notes() {
+  _has_bits_[0] &= ~0x00000080u;
+}
+inline void Header::clear_notes() {
+  if (notes_ != &::google::protobuf::internal::kEmptyString) {
+    notes_->clear();
+  }
+  clear_has_notes();
+}
+inline const ::std::string& Header::notes() const {
+  return *notes_;
+}
+inline void Header::set_notes(const ::std::string& value) {
+  set_has_notes();
+  if (notes_ == &::google::protobuf::internal::kEmptyString) {
+    notes_ = new ::std::string;
+  }
+  notes_->assign(value);
+}
+inline void Header::set_notes(const char* value) {
+  set_has_notes();
+  if (notes_ == &::google::protobuf::internal::kEmptyString) {
+    notes_ = new ::std::string;
+  }
+  notes_->assign(value);
+}
+inline void Header::set_notes(const char* value, size_t size) {
+  set_has_notes();
+  if (notes_ == &::google::protobuf::internal::kEmptyString) {
+    notes_ = new ::std::string;
+  }
+  notes_->assign(reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* Header::mutable_notes() {
+  set_has_notes();
+  if (notes_ == &::google::protobuf::internal::kEmptyString) {
+    notes_ = new ::std::string;
+  }
+  return notes_;
+}
+inline ::std::string* Header::release_notes() {
+  clear_has_notes();
+  if (notes_ == &::google::protobuf::internal::kEmptyString) {
+    return NULL;
+  } else {
+    ::std::string* temp = notes_;
+    notes_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+    return temp;
+  }
+}
+inline void Header::set_allocated_notes(::std::string* notes) {
+  if (notes_ != &::google::protobuf::internal::kEmptyString) {
+    delete notes_;
+  }
+  if (notes) {
+    set_has_notes();
+    notes_ = notes;
+  } else {
+    clear_has_notes();
+    notes_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+  }
 }
 
 

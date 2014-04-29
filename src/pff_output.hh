@@ -17,6 +17,7 @@
 #include <string>
 #include <map>
 #include <set>
+#include <stdexcept>
 #include <iomanip>
 #include <sstream>
 #include <fstream>
@@ -28,6 +29,19 @@
 #include <snappy.h>
 
 using namespace std;
+
+//Header Struct
+//    : Used to set data for the file header
+struct HeaderData
+{
+   //user data
+   long long int start_date;     //start date and time of run 
+   long long int creation_date;  //creation date
+   string identifier;            //run identifier (run name)   
+   string run_mode;              //run mode
+   string started_by;            //who started the run
+   string notes;                 //misc stuff
+};
 
 // Insert Structs
 //    : Used to ensure proper ordering of data files. The sets are sorted such that 
@@ -103,6 +117,22 @@ class pff_output
    //     Example string "n1000:b100:z" 
    // 
    int open_file(string path, string options);
+   //
+   // HeaderData header()
+   //   : Direct access to header data struct. Set the header information as 
+   //     follows:
+   //                   header.start_date - long long int, run start time
+   //                   header.identifier - string, run identifier
+   //                   header.run_mode   - string, operation mode
+   //                   header.started_by - string, who started the run
+   //                   header.notes      - string, misc information
+   //     This must be done before writing any data. Once writing has started
+   //     the header is locked and this will raise an exception.
+   // 
+   HeaderData header() {
+      if(m_uiEventNumber==0) return m_HeaderInfo;
+      else throw runtime_error("pff_output: Header must be set before writing");
+   };   
    
    // int create_event(long int TimeStamp, long int &handle)
    //   : Create an event and give it an identifying handle. Note the handle is 
@@ -157,12 +187,16 @@ class pff_output
    bool             m_bCompress_snappy;
    string           m_sFilePathBase;
    int              m_iCurrentFileNumber;
+   HeaderData       m_HeaderInfo;
    
    //Internal functions
+   void             SetDefaults();
    int              ParseOptions(string options);
    int              OpenNextFile();
+   int              WriteHeader();
    
    //Data storage
+   bool       bHeaderWritten;
    int        m_iCurrentHandle;                  // each event gets a handle
    map<int,InsertEvent> m_mapOpenEvents;          // Currently open events stored in a map
    set<InsertEvent>    m_setWriteBuffer;
