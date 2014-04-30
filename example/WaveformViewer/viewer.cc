@@ -69,8 +69,8 @@ int main(int argc, char *argv[])
 	    FileReader.get_data(x,y,data,datasize,dataTime);
 	    u_int32_t *easierData = (u_int32_t*)data;
 	    cout<<"Got some data with size "<<datasize<<endl;
-	    waveform = new TH1F("waveform","",datasize/4,0,datasize/4);
-	    for(int z=0;z<datasize/4;z+=2)  {
+	    waveform = new TH1F("waveform","",datasize/2,0,datasize/2);
+	    for(int z=0;z<datasize/2;z+=2)  {
 	       waveform->SetBinContent(z,easierData[z/2]&0xFFFF);
 	       waveform->SetBinContent(z+1,(easierData[z/2]>>16)&0xFFFF);
 	    }
