@@ -26,17 +26,13 @@ stamps, channels have id numbers, files store general data properties.
 Fetch code from github:
 
 ```
-
 git clone https://github.com/coderdj/pff
-
 ```
 
 Install dependencies. On ubuntu this looks like:
 
 ```
-
 apt-get install build-essential libsnappy-dev libprotobuf-dev
-
 ```
 
 Other operating systems probably have the required libraries available
@@ -49,10 +45,8 @@ libprotobuf. Don't worry, it's easy. Assuming you start in the top
 level directory:
 
 ```
-
 cd protoc
 protoc -I=./ --cpp_out=../src protoDef.proto
-
 ```
 
 See the readme in the protoc directory if you want to do some other
@@ -61,10 +55,8 @@ fancy stuff, like compile a python class.
 Now that everything is done go to the top level directory and type:
 
 ```
-
 make
 make install
-
 ```
 
 The installation will put the libraries in /usr/local/lib and the
