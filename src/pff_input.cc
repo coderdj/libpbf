@@ -85,6 +85,12 @@ int pff_input::get_next_event()
    return -1;
 }
 
+int pff_input::event_number()
+{
+   if(!m_bHasEvent) return -1;
+   return m_CurrentEvent.number();
+}
+
 int pff_input::num_channels()
 {
    if(!m_bHasEvent) return -1;

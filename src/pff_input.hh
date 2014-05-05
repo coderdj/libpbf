@@ -61,6 +61,11 @@ class pff_input
    
    //Info about current event
    //
+   // int event_number()
+   //   : index number of event
+   //
+   int event_number();
+   //
    // int num_channels()
    //   : number of channels included in current event
    // 
