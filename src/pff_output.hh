@@ -200,8 +200,8 @@ class pff_output
    //Data storage
    bool       bHeaderWritten;
    int        m_iCurrentHandle;                  // each event gets a handle
-   map<int,InsertEvent> m_mapOpenEvents;          // Currently open events stored in a map
-   set<InsertEvent>    m_setWriteBuffer;
+   map<int,InsertEvent*> m_mapOpenEvents;          // Currently open events stored in a map
+   set<InsertEvent*>    m_setWriteBuffer;
 
    //the current file handle and weird google::protobuf write objects
    ofstream            m_outfile;

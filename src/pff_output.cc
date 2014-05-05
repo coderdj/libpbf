@@ -63,10 +63,10 @@ int pff_output::create_event(unsigned long long int timestamp, int &handle)
 {
 //   pthread_mutex_lock(&m_xEventBufferMutex);
       
-   InsertEvent tEvent;
-   pthread_mutex_init(&tEvent.EventMutex,NULL);
-   tEvent.timestamp=timestamp;
-   m_mapOpenEvents.insert(pair<int,InsertEvent>(m_iCurrentHandle, tEvent));
+   InsertEvent *tEvent = new InsertEvent;
+   pthread_mutex_init(&(tEvent->EventMutex),NULL);
+   tEvent->timestamp=timestamp;
+   m_mapOpenEvents.insert(pair<int,InsertEvent*>(m_iCurrentHandle, tEvent));
    handle=m_iCurrentHandle;
    m_iCurrentHandle++;
    
@@ -99,7 +99,6 @@ int pff_output::add_data(int handle, int channel, int module,  char* data,
 			  &compressedLength);
       idata.payload = compressed;
       idata.size = compressedLength;
-      //delete[] data;
    }   
    //no compression
    else{	
@@ -107,7 +106,7 @@ int pff_output::add_data(int handle, int channel, int module,  char* data,
       idata.size = dataSize;
    }   
 //   pthread_mutex_lock(&m_mapOpenEvents[handle].EventMutex);
-   m_mapOpenEvents[handle].channels[mc].data.insert(idata);
+   m_mapOpenEvents[handle]->channels[mc].data.insert(idata);
 //   pthread_mutex_unlock(&m_mapOpenEvents[handle].EventMutex);
    
    return 0;
@@ -118,14 +117,11 @@ int pff_output::close_event(int handle, bool writeout)
 //   pthread_mutex_lock(&m_xWriteBufferMutex);
 //   pthread_mutex_lock(&m_xEventBufferMutex);
    m_setWriteBuffer.insert(m_mapOpenEvents[handle]);
-   map<int,InsertEvent>::iterator it;
-   it = m_mapOpenEvents.find(handle);
-   m_mapOpenEvents.erase(it);
+   m_mapOpenEvents.erase(handle);
 
 //   pthread_mutex_unlock(&m_xWriteBufferMutex);
 //   pthread_mutex_unlock(&m_xEventBufferMutex);
    
-   if(it==m_mapOpenEvents.end()) return -1;
    if(writeout)
      return write(0);
    return 0;
@@ -148,23 +144,23 @@ int pff_output::write(u_int64_t timestamp)
 //      return -1;
 //   }
    
-   set<InsertEvent>::iterator it = m_setWriteBuffer.begin();
+   set<InsertEvent*>::iterator it = m_setWriteBuffer.begin();
    
    while(it!=m_setWriteBuffer.end())  {
-      InsertEvent ev = *it;
-      if(timestamp!=0 && timestamp>ev.timestamp)
+      InsertEvent *ev = *it;
+      if(timestamp!=0 && timestamp>ev->timestamp)
 	break;
 //      pthread_mutex_lock(& ev.EventMutex);
       
       //write event
       pbf::Event pbEvent;
-      pbEvent.set_time(ev.timestamp);
+      pbEvent.set_time(ev->timestamp);
       pbEvent.set_number(m_uiEventNumber);
       m_uiEventNumber++;
       
       //loop though channels
       map<MCPair,InsertChannel>::iterator chIt;
-      for(chIt = ev.channels.begin(); chIt!=ev.channels.end(); chIt++)	{
+      for(chIt = ev->channels.begin(); chIt!=ev->channels.end(); chIt++)	{
 	 
 	 //make channel obj
 	 pbf::Event_Channel *pbChannel = pbEvent.add_channel();
@@ -197,15 +193,16 @@ int pff_output::write(u_int64_t timestamp)
 	 pthread_mutex_unlock(&m_xFileLock);	 
 	 if(OpenNextFile()!=0) {
 	    cerr<<"Failed to open next file!"<<endl;
-	    pthread_mutex_unlock(& ev.EventMutex);
+	    pthread_mutex_unlock(&(ev->EventMutex));
 	    return -1;
 	 }	 
 //	 pthread_mutex_lock(&m_xEventBufferMutex);
 //	 pthread_mutex_lock(&m_xFileLock);	 
       }
-      set<InsertEvent>::iterator rmit = it;
+      set<InsertEvent*>::iterator rmit = it;
       it++;
-      pthread_mutex_destroy(& ev.EventMutex);
+      pthread_mutex_destroy(&(ev->EventMutex));
+      delete ev;
       m_setWriteBuffer.erase(rmit);
    }//end event loop   
    
