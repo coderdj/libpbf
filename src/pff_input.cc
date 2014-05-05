@@ -56,6 +56,19 @@ void pff_input::close_file()
    m_gCodedInput=NULL;
 }
 
+int pff_input::get_event(long long int eventID)
+{
+   if(m_bHasEvent)  {
+      if(event_number()==eventID)
+	return 0;
+   }
+   while(get_next_event()==0)  {
+      if(event_number()==eventID)
+	return 0;
+   }   
+   return -1;
+}
+
 int pff_input::get_next_event()
 {
    if(m_infile.eof()){

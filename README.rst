@@ -46,6 +46,7 @@ level directory:
 
 ```
 cd protoc
+
 protoc -I=./ --cpp_out=../src protoDef.proto
 ```
 
@@ -56,6 +57,7 @@ Now that everything is done go to the top level directory and type:
 
 ```
 make
+
 make install
 ```
 

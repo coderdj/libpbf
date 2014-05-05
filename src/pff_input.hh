@@ -54,10 +54,10 @@ class pff_input
    // 
    int get_next_event();
    //
-   // int get_event(long int eventID)
+   // int get_event(long long int eventID)
    //   : Get an event with a specific ID. Returns 0 if found and -1 if not
    // 
-   //int get_event(long int eventID); //not yet implemented
+   int get_event(long long int eventID); 
    
    //Info about current event
    //
