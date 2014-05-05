@@ -158,7 +158,17 @@ protoc -I=./ --cpp_out=../src protocDef.proto
 <li>Read all data you want from this event</li>
 <li>Go back to step 2 for all subsequent events</li>
 <li>Close the fine when done</li>
-</ol><p>To be continued next rainy day...</p>
+</ol><p>Note that you don't have to provide any attributes of the file (zipped or not, how many events per sub-file, etc.) since they are defined in the file header and automatically read.</p>
+
+<p>To open a file, use the following syntax:</p>
+
+<div class="highlight highlight-c++"><pre><span class="n">pff_input</span> <span class="n">infile</span><span class="p">;</span>
+<span class="kt">int</span> <span class="n">success</span> <span class="o">=</span> <span class="n">infile</span><span class="p">.</span><span class="n">open_file</span><span class="p">(</span><span class="n">path</span><span class="p">);</span>
+<span class="k">if</span> <span class="p">(</span><span class="n">success</span><span class="o">==</span><span class="mi">0</span><span class="p">)</span> <span class="n">cout</span><span class="o">&lt;&lt;</span><span class="s">"File opened successfully"</span><span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span>
+<span class="k">else</span> <span class="n">cout</span><span class="o">&lt;&lt;</span><span class="s">"File at "</span><span class="o">&lt;&lt;</span><span class="n">path</span><span class="o">&lt;&lt;</span><span class="s">" could not be opened."</span><span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span>
+</pre></div>
+
+<p>To be continued.</p>
 
 <h3>
 <a name="authors-and-contributors" class="anchor" href="#authors-and-contributors"><span class="octicon octicon-link"></span></a>Authors and Contributors</h3>
