@@ -94,7 +94,7 @@ int pff_input::get_next_event()
       m_bHasEvent = true;
       return 0;
    }
-   cerr<<"Could not parse event from data. Is the file a valid .pff file?"<<endl;  
+   cerr<<"Could not parse event from data. Is the file a valid .pbf file?"<<endl;  
    return -1;
 }
 
@@ -197,12 +197,12 @@ int pff_input::OpenNextFile()
 {   
    if(m_infile.is_open()) close_file();
    
-   string extension = ".pff";
+   string extension = ".pbf";
    string filepath = "";
    
    //Check if file has extension
    if(m_sFilePathBase[m_sFilePathBase.size()]=='f' &&
-      m_sFilePathBase[m_sFilePathBase.size()-1]=='f' &&
+      m_sFilePathBase[m_sFilePathBase.size()-1]=='b' &&
       m_sFilePathBase[m_sFilePathBase.size()-2]=='p' &&
       m_sFilePathBase[m_sFilePathBase.size()-3]=='.')
      filepath = m_sFilePathBase;
@@ -221,7 +221,7 @@ int pff_input::OpenNextFile()
    m_gCodedInput = new google::protobuf::io::CodedInputStream(m_gZCInput);
    
    if(ReadHeader()!=0){
-      cerr<<"pff_input::OpenNextFile - No header found, not a valid pff file?"<<endl;
+      cerr<<"pbf_input::OpenNextFile - No header found, not a valid pbf file?"<<endl;
       return -1; 
    }   
    
@@ -256,7 +256,7 @@ int pff_input::ReadHeader()
       else m_Header.notes = "";
    }
    else  {
-      cerr<<"Error reading file header. Is this a valid .pff file?"<<endl;
+      cerr<<"Error reading file header. Is this a valid .pbf file?"<<endl;
       return -1;
    }
    

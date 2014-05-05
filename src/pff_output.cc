@@ -19,7 +19,7 @@ pff_output::pff_output(string path, string options)
 {
    SetDefaults();
    if(open_file(path,options)!=0)
-     throw runtime_error("pff_output: Could not open file.");   
+     throw runtime_error("pbf_output: Could not open file.");   
 }
 
 void pff_output::SetDefaults()
@@ -51,7 +51,7 @@ pff_output::~pff_output()
 int pff_output::open_file(string path, string options)
 {
    if(ParseOptions(options)!=0)
-     cerr<<"Warning: pff file initialized with bad options string!"<<endl;
+     cerr<<"Warning: pbf file initialized with bad options string!"<<endl;
    
    m_iCurrentFileNumber =0;
    m_sFilePathBase = path;
@@ -271,7 +271,7 @@ int pff_output::OpenNextFile()
 
 //   pthread_mutex_lock(&m_xFileLock);
    
-   string extension = ".pff";
+   string extension = ".pbf";
    stringstream fName;
    fName<<m_sFilePathBase<<setfill('0')<<setw(6)<<m_iCurrentFileNumber<<extension;
    m_iCurrentFileNumber++;
