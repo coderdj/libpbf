@@ -2,27 +2,27 @@
 // 
 // Protobuf File Format
 //
-// File   :     pff_input.cc
+// File   :     pbf_input.cc
 // Author :     Daniel Coderre, LHEP, Universitaet Bern
-// Brief  :     Top end access to .pff infiles
+// Brief  :     Top end access to .pbf infiles
 // 
 // *************************************************************
 
-#include "pff_input.hh"
+#include "pbf_input.hh"
 
-pff_input::pff_input()
+pbf_input::pbf_input()
 {
    Initialize();
 }
 
-pff_input::pff_input(string path)
+pbf_input::pbf_input(string path)
 {
    Initialize();
    if(open_file(path)!=0)
-     throw runtime_error("pff_input: Could not open file.");   
+     throw runtime_error("pbf_input: Could not open file.");   
 }
 
-void pff_input::Initialize()
+void pbf_input::Initialize()
 {
    m_Header.start_date = m_Header.creation_date = 0;
    m_Header.identifier = m_Header.run_mode = m_Header.started_by = m_Header.notes = "";
@@ -34,19 +34,19 @@ void pff_input::Initialize()
    m_sFilePathBase="";
 }
 
-pff_input::~pff_input()
+pbf_input::~pbf_input()
 {
    close_file();
 }
 
-int pff_input::open_file(string path)
+int pbf_input::open_file(string path)
 {
    m_sFilePathBase = path;
    m_iCurrentFileNumber = 0;
    return OpenNextFile();
 }
 
-void pff_input::close_file()
+void pbf_input::close_file()
 {
    if(!m_infile.is_open()) return;
    m_infile.close();
@@ -56,7 +56,7 @@ void pff_input::close_file()
    m_gCodedInput=NULL;
 }
 
-int pff_input::get_event(long long int eventID)
+int pbf_input::get_event(long long int eventID)
 {
    if(m_bHasEvent)  {
       if(event_number()==eventID)
@@ -69,7 +69,7 @@ int pff_input::get_event(long long int eventID)
    return -1;
 }
 
-int pff_input::get_next_event()
+int pbf_input::get_next_event()
 {
    if(m_infile.eof()){
       if(OpenNextFile()!=0)	{
@@ -98,19 +98,19 @@ int pff_input::get_next_event()
    return -1;
 }
 
-int pff_input::event_number()
+int pbf_input::event_number()
 {
    if(!m_bHasEvent) return -1;
    return m_CurrentEvent.number();
 }
 
-int pff_input::num_channels()
+int pbf_input::num_channels()
 {
    if(!m_bHasEvent) return -1;
    return m_CurrentEvent.channel_size();
 }
 
-int pff_input::num_data(int channelindex)
+int pbf_input::num_data(int channelindex)
 {
    if(!m_bHasEvent) return -1;
    if(channelindex>m_CurrentEvent.channel_size()) return -1;
@@ -120,7 +120,7 @@ int pff_input::num_data(int channelindex)
    return channel.data_size();
 }
 
-int pff_input::num_data_id(int channelid, int moduleid)
+int pbf_input::num_data_id(int channelid, int moduleid)
 {
    if(!m_bHasEvent) return -1;
    //simple linear search. make this smarter in the future
@@ -134,7 +134,7 @@ int pff_input::num_data_id(int channelid, int moduleid)
    return -1;
 }
 
-int pff_input::channel_id(int channelindex, int &channelid, int &moduleid)
+int pbf_input::channel_id(int channelindex, int &channelid, int &moduleid)
 {
    if(!m_bHasEvent) return -1;
    if(channelindex>m_CurrentEvent.channel_size()) return -1;
@@ -146,7 +146,7 @@ int pff_input::channel_id(int channelindex, int &channelid, int &moduleid)
    return 0;
 }
 
-int pff_input::get_channel_handle(int channelid, int moduleid)
+int pbf_input::get_channel_handle(int channelid, int moduleid)
 {
    if(!m_bHasEvent) return -1;
    for(int x=0; x<num_channels();x++){	
@@ -158,7 +158,7 @@ int pff_input::get_channel_handle(int channelid, int moduleid)
    return -1;//not found
 }
 
-int pff_input::get_data(int channelindex, int dataindex, char*&data, 
+int pbf_input::get_data(int channelindex, int dataindex, char*&data, 
 			unsigned int &size, long long int &dataTime)
 {
    if(!m_bHasEvent) return -1;
@@ -193,7 +193,7 @@ int pff_input::get_data(int channelindex, int dataindex, char*&data,
 }
 
 
-int pff_input::OpenNextFile()
+int pbf_input::OpenNextFile()
 {   
    if(m_infile.is_open()) close_file();
    
@@ -228,7 +228,7 @@ int pff_input::OpenNextFile()
    return 0;
 }
 
-int pff_input::ReadHeader()
+int pbf_input::ReadHeader()
 {
    //get size
    u_int32_t headerSize = 0;

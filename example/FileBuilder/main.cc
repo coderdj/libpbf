@@ -1,5 +1,5 @@
 #include <getopt.h>
-#include <pff_output.hh>
+#include <pbf_output.hh>
 #include <mongo/client/dbclient.h>
 
 //#include <string>
@@ -66,7 +66,7 @@ int main(int argc, char *argv[])
    }
    
    //Open output file
-   pff_output outfile;
+   pbf_output outfile;
    if(outfile.open_file(sOutputPath,sOptions)!=0){	
       cerr<<"Error opening outfile. Quitting."<<endl;
       return -1;
@@ -96,8 +96,12 @@ int main(int argc, char *argv[])
 	       eventHandle=-1;
 	    }	    
 	    //open a new event	 	    
-	    if(outfile.create_event(doc.getField("time").numberLong(),eventHandle)!=0) continue;
-	    triggertime = iLastTriggerTime;
+	    if(outfile.create_event(doc.getField("time").numberLong(),eventHandle)!=0) {
+	       cout<<"ERROR MAKING EVENT"<<endl;
+	       continue;
+	    }
+///	    triggertime = iLastTriggerTime;
+	    iLastTriggerTime=triggertime;
 	 }
 	 
 	 //add data
@@ -115,13 +119,12 @@ int main(int argc, char *argv[])
 	 snappy::RawUncompress((const char*)raw,(size_t)size,(char*)extracted);
 	 	 
 	 outfile.add_data(eventHandle,channel,module,(char*)extracted,extractLength);
-	 if(eventHandle%1000==0) cout<<eventHandle<<endl;
+	 
       }
       else {	 
 	 break; //finished collection
       }      
    }//end while
-   cout<<eventHandle<<endl;
    if(eventHandle!=-1)
      outfile.close_event(eventHandle,true);
    outfile.close_file();

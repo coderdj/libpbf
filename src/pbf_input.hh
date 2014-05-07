@@ -1,48 +1,47 @@
-#ifndef PFF_INPUT_HH_
-#define PFF_INPUT_HH_
+#ifndef PBF_INPUT_HH_
+#define PBF_INPUT_HH_
 
 // *************************************************************
 // 
 // Protobuf File Format
 //
-// File   :     pff_input.hh
+// File   :     pbf_input.hh
 // Author :     Daniel Coderre, LHEP, Universitaet Bern
-// Brief  :     Top end access to .pff infiles
+// Brief  :     Top end access to .pbf infiles
 // 
 // *************************************************************
 
-//
-// includes
-#include "pff_output.hh"
+
+#include "pbf_output.hh"
 
 using namespace std;
 
-class pff_input
+class pbf_input
 {
  public: 
 
    // Constructors
    // 
-   // pff_input()
+   // pbf_input()
    //   : Default constructor
    // 
-   pff_input();
+   pbf_input();
    //
-   // pff_input(string path)
+   // pbf_input(string path)
    //   : Initialize with a file path. Raises an exception if it can't open the file.
    // 
-   pff_input(string path);
+   pbf_input(string path);
    //
-   // ~pff_input()
+   // ~pbf_input()
    //   : Will close file if open.
    // 
-   virtual ~pff_input();
+   virtual ~pbf_input();
    
    //
    // int open_file(string path)
    //   : In case file was not opened with constructor can use this one. Can specify either
    //     an absolute path (with extension) or a path stub where the numbering and extension
-   //     are omitted. In the latter case this will start with file {stub}000000.pff and increment
+   //     are omitted. In the latter case this will start with file {stub}000000.pbf and increment
    //     through files as events are browsed.
    // 
    int open_file(string path);

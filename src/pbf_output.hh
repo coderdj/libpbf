@@ -1,18 +1,16 @@
-#ifndef PFF_OUTPUT_HH_
-#define PFF_OUTPUT_HH_
+#ifndef PBF_OUTPUT_HH_
+#define PBF_OUTPUT_HH_
 
 // *************************************************************
 // 
 // Protobuf File Format
 //
-// File   :     pff_output.hh
+// File   :     pbf_output.hh
 // Author :     Daniel Coderre, LHEP, Universitaet Bern
-// Brief  :     Top end access for writing .pff files
+// Brief  :     Top end access for writing .pbf files
 // 
 // *************************************************************
 
-//
-// includes
 #include <vector>
 #include <string>
 #include <map>
@@ -28,6 +26,7 @@
 #include <fcntl.h>
 #include <snappy.h>
 #include <pthread.h>
+#include "dcIndexedList.hh"
 
 using namespace std;
 
@@ -49,6 +48,14 @@ struct HeaderData
 //      events are sorted by time stamp. Channels are sorted by module/channel number
 //      and data is sorted by time stamp. These will be converted to pbf objects upon write
 //      
+struct EventWrapper
+{
+   pbf::Event event;
+   bool operator<(const EventWrapper &rhs) const{
+      if(event.time()==0) return true;
+      return (event.time()<rhs.event.time() ? true : false);
+   }   
+};
 struct InsertData
 {
    char* payload;
@@ -85,27 +92,27 @@ struct InsertEvent
 };
 
 
-class pff_output
+class pbf_output
 {
  public: 
    
    // 
    // Constructors
    // 
-   // pff_output()
+   // pbf_output()
    //   : Default constructor
    // 
-   pff_output();
+   pbf_output();
    //
-   // pff_output(string path, string options)
+   // pbf_output(string path, string options)
    //   : Initialize object and call open_file. Raise exception on failure
    // 
-   pff_output(string path, string options);
+   pbf_output(string path, string options);
    //
-   // ~pff_output()
+   // ~pbf_output()
    //    : Will write out buffer (if not empty) and close file (if open)
    // 
-   virtual ~pff_output();
+   virtual ~pbf_output();
    
    //
    // int open_file(string path, string options)
@@ -156,20 +163,20 @@ class pff_output
    int add_data(int handle, int channel, char* data, size_t dataSize, u_int64_t dataTime=0);
    int add_data(int handle, int channel, int module, char* data, size_t dataSize, u_int64_t dataTime=0);
    //
-   // int close_event(int handle, bool write=false)
+   // void close_event(int handle, bool write=false)
    //   : If you are done adding data to an event, close it and put it in the output buffer
    //     The output buffer is sorted by time stamp. The output buffer is either written out
    //     by a manual call to the write function or when it reaches the size defined when the
    //     file it opened. Setting the write flag to true puts the event directly into the file
    //     along with any other contents of the output buffer.
    // 
-   int close_event(int handle, bool writeout=false);
+   void close_event(int handle, bool writeout=false);
    //
-   // int write(u_int64_t timestamp=0)
+   // void write(u_int64_t timestamp=0)
    //   : Write all events up to timestamp. If timestamp is set to zero, write 
    //     all events in the output buffer. 
    // 
-   int write(u_int64_t timestamp=0);
+   void write(u_int64_t timestamp=0);
    
    //
    // void close_file(bool quiet = false);
@@ -178,6 +185,9 @@ class pff_output
    //     closing. true=no.
    // 
    void close_file(bool quiet=false);
+
+   static void*            WriteThreadWrapper(void *data);
+   static void*            CopyThreadWrapper(void *data);
    
  private:
    
@@ -196,12 +206,17 @@ class pff_output
    int              ParseOptions(string options);
    int              OpenNextFile();
    int              WriteHeader();
+   void             WriteThread();
+   void             CopyThread();
    
    //Data storage
    bool       bHeaderWritten;
-   int        m_iCurrentHandle;                  // each event gets a handle
-   map<int,InsertEvent*> m_mapOpenEvents;          // Currently open events stored in a map
-   set<InsertEvent*>    m_setWriteBuffer;
+   bool       bCloseFile;
+   u_int64_t  m_Lasttimestamp;
+
+   dcIndexedList<InsertEvent*> m_OpenEvents;
+   vector<InsertEvent*> m_ClosedEvents;
+   set<EventWrapper>    m_setWriteBuffer;
 
    //the current file handle and weird google::protobuf write objects
    ofstream            m_outfile;
@@ -209,8 +224,10 @@ class pff_output
    google::protobuf::io::CodedOutputStream    *m_protoCOut;
 
    //thread-safe stuff
-   pthread_mutex_t    m_xEventBufferMutex;
-   pthread_mutex_t    m_xWriteBufferMutex;
-   pthread_mutex_t    m_xFileLock;
+   pthread_mutex_t m_xOutputMutex;
+   pthread_mutex_t m_xClosedEventsMutex;
+   pthread_t m_WriteThread, m_CopyThread;
+   //   pthread_mutex_t    m_xEventBufferMutex;
+//   pthread_mutex_t    m_xWriteBufferMutex;
 };
 #endif
