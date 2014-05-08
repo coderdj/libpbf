@@ -112,14 +112,18 @@ int main(int argc, char *argv[])
 	 //make this smarter in the future (should check run control doc to see if compression is on
 	 //and then only decompress if needed)
 	 int size=0;
-	 u_int32_t *raw = (u_int32_t*)doc.getField("data").binData(size);
-	 size_t extractLength;
+	 char *raw = (char*)doc.getField("data").binData(size);
+//	 char *dcopy = new char[size];
+//	 copy(raw,raw+size,dcopy);
+/*	 size_t extractLength;
 	 snappy::GetUncompressedLength((const char*)raw,(size_t)size,&extractLength);
 	 char  extracted[extractLength];
 	 snappy::RawUncompress((const char*)raw,(size_t)size,(char*)extracted);
 	 	 
 	 outfile.add_data(eventHandle,channel,module,(char*)extracted,extractLength);
-	 
+         delete[] extracted;
+ */
+	 outfile.add_data(eventHandle,channel,module,(char*)raw,size);
       }
       else {	 
 	 break; //finished collection

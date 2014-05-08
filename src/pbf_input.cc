@@ -183,7 +183,7 @@ int pbf_input::get_data(int channelindex, int dataindex, char*&data,
    snappy::GetUncompressedLength((const char*)payload.data(),(size_t)payload.size(),
 				 &extractLength);
    //char extracted[extractLength];
-   delete[] data;
+   //delete[] data;
    data = new char[extractLength];
    snappy::RawUncompress((const char*)payload.data(),(size_t)payload.size(),data);
    size = extractLength;

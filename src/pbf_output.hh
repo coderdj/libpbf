@@ -196,7 +196,7 @@ class pbf_output
    //Internal Options
    int              m_iEventsPerFile;
    int              m_iMaxBufferSize;
-   bool             m_bCompress_snappy;
+   bool             m_bCompress_snappy,m_bAlreadySnappified;
    string           m_sFilePathBase;
    int              m_iCurrentFileNumber;
    HeaderData       m_HeaderInfo;

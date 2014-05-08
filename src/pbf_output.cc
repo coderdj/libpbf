@@ -28,7 +28,7 @@ void pbf_output::SetDefaults()
    m_protoCOut = NULL;
    m_iCurrentFileNumber = m_iEventsPerFile = m_iMaxBufferSize = 0;
    m_uiEventNumber = 0;
-   m_bCompress_snappy = false;
+   m_bAlreadySnappified = m_bCompress_snappy = false;
    m_HeaderInfo.identifier="default";
    m_HeaderInfo.started_by=m_HeaderInfo.run_mode=m_HeaderInfo.notes="";
    m_HeaderInfo.start_date=m_HeaderInfo.creation_date=0;
@@ -102,7 +102,6 @@ int pbf_output::add_data(int handle, int channel, int module,  char* data,
    if(m_bCompress_snappy)  {
       char* compressed = new char[snappy::MaxCompressedLength(dataSize)];
       size_t compressedLength = 0;
-//      cout<<"CLEN "<<snappy::MaxCompressedLength(dataSize)<<endl;
       snappy::RawCompress((const char*)(data),dataSize,compressed,
 			  &compressedLength);
       idata.payload = compressed;
@@ -110,7 +109,8 @@ int pbf_output::add_data(int handle, int channel, int module,  char* data,
    }   
    //no compression
    else{	
-      idata.payload = data;
+      idata.payload = new char[dataSize];
+      copy(data,data+dataSize,idata.payload);// = data;
       idata.size = dataSize;
    }   
 //   pthread_mutex_lock(&m_mapOpenEvents[handle].EventMutex);
@@ -190,7 +190,6 @@ void pbf_output::CopyThread()
 	 wrap.event = pbEvent;
 	 pthread_mutex_lock(&m_xOutputMutex);
 	 m_setWriteBuffer.insert(wrap);
-//cout<<"Copy thread size "<<m_setWriteBuffer.size()<<endl;
 	 pthread_mutex_unlock(&m_xOutputMutex);
 	 pthread_mutex_lock(&m_xClosedEventsMutex);
 	 m_ClosedEvents.erase(m_ClosedEvents.begin());
@@ -208,7 +207,7 @@ void pbf_output::WriteThread()
    while(!bCloseFile) {	
       
       set<EventWrapper>::iterator it = m_setWriteBuffer.begin();
-      usleep(100); //avoid 100% cpu
+      usleep(10); //avoid 100% cpu
       while(it!=m_setWriteBuffer.end())  {
 	 if(!bHeaderWritten)    {	      
 	    if(WriteHeader()!=0) {		   
@@ -236,7 +235,7 @@ void pbf_output::WriteThread()
 	 int datasize = s.size();
 	 while(!m_protoCOut->GetDirectBufferPointer((dummy),
 						    (int*)(&(datasize)))){
-	    usleep(10);
+	    usleep(1);
 //	    	    cout<<"NotEnoughSpace"<<endl;
 	 }
 	    
@@ -274,11 +273,7 @@ void pbf_output::close_file(bool quiet)
       pthread_join(m_WriteThread,NULL);
       pthread_join(m_CopyThread,NULL);
    }
-   
-//   bCloseFile=true;
-//   pthread_join(m_WriteThread,NULL);      
-//   pthread_join(m_CopyThread,NULL);
-   
+      
    if(m_protoCOut!=NULL) delete m_protoCOut;
    if(m_protoOut!=NULL) delete m_protoOut;
    m_protoOut = NULL;
@@ -295,7 +290,10 @@ int pbf_output::WriteHeader()
    //Optional fields with no value provided will not be written
    pbf::Header header;
    
-   header.set_zipped(m_bCompress_snappy);
+   if(m_bCompress_snappy || m_bAlreadySnappified)
+     header.set_zipped(true);
+   else
+     header.set_zipped(false);
    time_t starttime=0;
    time(&starttime);
    header.set_creationdate((long long int)starttime);
@@ -350,6 +348,7 @@ int pbf_output::ParseOptions(string options)
    //possibles options
    // n{int} num events per file
    // z zip with snappy
+   // pz pre-zipped (already zipped) with snappy
    // b{int} max buffer size
    
    //parse
@@ -364,6 +363,8 @@ int pbf_output::ParseOptions(string options)
    for(unsigned int x=0;x<items.size();x++)  {
       if(items[x]=="z")
 	m_bCompress_snappy=true;
+      else if(items[x]=="pz")
+	m_bAlreadySnappified=true;
       else if(items[x][0]=='n'){	      
 	 string num = items[x].substr(1,items[x].size()-1);
 	 istringstream(num) >> m_iEventsPerFile;

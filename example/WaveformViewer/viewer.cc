@@ -5,7 +5,7 @@
 #include <TFile.h>
 #include <TCanvas.h>
 #include <TApplication.h>
-#include <pff_input.hh>
+#include <pbf_input.hh>
 
 using namespace std;
 
@@ -47,7 +47,7 @@ int main(int argc, char *argv[])
       
    cout<<"Event "<<iEventNumber<<" Path "<<sPath<<endl;
 
-   pff_input FileReader;
+   pbf_input FileReader;
    if(FileReader.open_file(sPath)!=0)  {
       cout<<"Bad path"<<endl;
       return -1;
@@ -106,7 +106,7 @@ int main(int argc, char *argv[])
 	       cout<<"LONG ONE: STARTBIN="<<startBin<<" "<<dataTime<<" "<<startTime<<" "<<dataTime-startTime<<endl;
 	       recordLong=true;
 	    }
-	    if(!recordLong) continue;
+	    //if(!recordLong) continue;
 	    
 	    for(int z=0;z<datasize/2;z+=2)  {
 	       waveform->SetBinContent(z+1,easierData[z/2]&0xFFFF);
@@ -118,7 +118,7 @@ int main(int argc, char *argv[])
 	       }
 	       
 	    }
-	    longwaveform->Draw();
+	    waveform->Draw();
 	    can->Update();
 	    char dat;
 	    cin>>dat;
