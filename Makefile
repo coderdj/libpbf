@@ -2,6 +2,7 @@
 # use 'make' to compile the shared library
 # use 'make exe' to compile the executable tool
 
+PREFIX          = /usr/local
 CC		= g++
 CFLAGS		= -Wall -g -DLINUX -fPIC
 LDFLAGS         = -shared -lsnappy -lprotobuf
@@ -10,13 +11,20 @@ OBJECTS         = $(SOURCES: .cc=.o)
 SO              = libpbf.so
 
 all: $(SO)
+	echo 'Regenerating protocol buffer classes'
+	protoc -I=protoc/ --cpp_out=src/ protoc/protocDef.proto
+	echo 'done.'
 
 $(SO) : $(OBJECTS)
 	$(CC) $(LDFLAGS) $(OBJECTS) $(CFLAGS) -o $(SO)
 
 install:	
-	install $(SO) /usr/local/lib/$(SO)
-	install $(shell echo ./src/*h) /usr/local/include/pbf/
+	install -m 0755 $(SO) $(PREFIX)/lib/$(SO)
+	test -d $(PREFIX)/include/pbf || mkdir $(PREFIX)/include/pbf
+	install -m 0644 $(shell echo ./src/*h) $(PREFIX)/include/pbf/
+
+.PHONY: install
+
 clean:
 	rm $(SO)
 
