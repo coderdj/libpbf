@@ -51,7 +51,9 @@
 
 <p><code>apt-get install build-essential libsnappy-dev libprotobuf-dev</code></p>
 
-<p>For now you will have to re-generate the protocol buffer classes with your version of libprotobuf. At a later stage this step will be built into the build scripts. See the protoc/README.rst for more info.</p>
+<p>Note that you also need libpthread, but if you are on Ubuntu (and probably other distros) this will likely already be installed. </p>
+
+<p>For now you may have to re-generate the protocol buffer classes with your version of libprotobuf. At a later stage this step will be built into the build scripts. See the protoc/README.rst for more info.</p>
 
 <pre><code>cd protoc
 protoc -I=./ --cpp_out=../src protocDef.proto
@@ -99,8 +101,9 @@ protoc -I=./ --cpp_out=../src protocDef.proto
 
 <ul>
 <li>z - zip output. This compresses the data blocks internally using snappy. When reading the file again later you don't have to know if it was compressed or not. This information is stored internally.</li>
+<li>pz - data is already zipped. If you send compressed data to the file then you can set this option to have it flagged as compressed and automatically extracted when the file is read. Note that only snappy is supported, so if you compressed with something other than snappy do not set this option, you will have to decompress manually.</li>
 <li>n{int} - gives the number of events per subfile. For one measurement it might be convenient to split the data up into many sub files with, for example, 1,000 events each. Then you can set this options as 'n1000'. The data will  then be stored in files of the form: {filepath}{filenumber}.pff. Where filenumber is a 6-digit number indicating which block of 1,000 events are in the file. If you set this number so low or run so long that you exceed 999,999 files then all remaining data goes into the last file. Setting this number to zero puts all data into one file.</li>
-<li>b{int} - sets the maximum number of events in the internal readout buffer. Best to leave this as the default (100). When the readout buffer exceeds this number, it is automatically saved to file, starting with the event with the earliest timestamp, until it is under the size again. The reason for this is to prevent memory overruns in case of user error (saving a lot of events to the buffer without writing). </li>
+<li>b{int} - sets the maximum number of open events in the internal buffer. If you exceed this number of open events the library will stop assigning file handles until some events are closed. This can be useful for managing memory if you anticipate situations where you will be writing into a large number of events simultaneously. It is left as a user option since the user knows best if he wants to write into 10,000 open events with size of 1kB each or if he can only have a few open events since the events are many MB in size. The default of 100 is probably fine if this confuses you.</li>
 </ul><p>Once your file is open, start adding events. You can open a new event using the following code:</p>
 
 <div class="highlight highlight-c++"><pre><span class="kt">int</span> <span class="n">eventHandle</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
@@ -108,11 +111,11 @@ protoc -I=./ --cpp_out=../src protocDef.proto
 <span class="k">if</span><span class="p">(</span><span class="n">success</span><span class="o">!=</span><span class="mi">0</span><span class="p">)</span> <span class="n">cout</span><span class="o">&lt;&lt;</span><span class="s">"Could not create event."</span><span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span>
 </pre></div>
 
-<p>Here timestamp lets you specify the time of the event. This is an unsigned 64-but integer. If it is set to zero the event is given the timestamp of the earliest data entry. If nothing is provided the time stamp is left at zero when the event is saved. This is not suggested, though the events will still be assigned unique ID numbers.</p>
+<p>Here timestamp lets you specify the time of the event. This is an unsigned 64-bit integer. If it is set to zero the event is given the timestamp of the earliest data entry. If nothing is provided the time stamp is left at zero when the event is saved. This is not suggested, though the events will still be assigned unique ID numbers. If you do provide timestamps then the library can sort the events by these times to read them out.</p>
 
-<p>The event handle is passed by reference to the create_event function and is returned as a unique integer. This number will be used for adding data to this specific event in the future. This handle is valid until the event is closed. After that point it could be recycled for future events. </p>
+<p>The event handle is passed by reference to the create_event function and is returned as a unique integer. This number will be used for adding data to this specific event in the future. This handle is valid until the event is closed. After that point it will be recycled for future events. </p>
 
-<p>To add data to an event, use the add_data function. The data is a binary dump, represented by a pointer to a char array. </p>
+<p>To add data to an event, use the add_data function. The data is a binary dump, represented by a pointer to a char array. Please note that the program will make a copy of this data for its own use and also remove this copy when it is finished. The user is responsible for freeing any memory allocated by his own program. It is safe to  delete or overwrite the data pointer immediately after adding the data to the event.</p>
 
 <div class="highlight highlight-c++"><pre><span class="kt">int</span> <span class="n">success</span> <span class="o">=</span> <span class="n">outfile</span><span class="p">.</span><span class="n">add_data</span><span class="p">(</span><span class="n">eventHandle</span><span class="p">,</span><span class="n">channel</span><span class="p">,</span><span class="n">module</span><span class="p">,(</span><span class="kt">char</span><span class="o">*</span><span class="p">)</span><span class="n">data</span><span class="p">,</span><span class="n">dataLength</span><span class="p">);</span>
 <span class="k">if</span><span class="p">(</span><span class="n">success</span><span class="o">==</span><span class="mi">0</span><span class="p">)</span> <span class="n">cout</span><span class="o">&lt;&lt;</span><span class="s">"Data added to event with handle "</span><span class="o">&lt;&lt;</span><span class="n">eventHandle</span><span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span>
@@ -126,21 +129,21 @@ protoc -I=./ --cpp_out=../src protocDef.proto
 <span class="k">if</span><span class="p">(</span><span class="n">success</span><span class="o">==</span><span class="mi">0</span><span class="p">)</span> <span class="n">cout</span><span class="o">&lt;&lt;</span><span class="s">"Data added with time stamp "</span><span class="o">&lt;&lt;</span><span class="n">timestamp_data</span><span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span>
 </pre></div>
 
-<p>The variable timestamp_data is an unsigned 64-bit integer. Even if the data is added outside of temporal order, it will be sorted within the channel by time stamp if this field is provided.</p>
+<p>The variable timestamp_data is an unsigned 64-bit integer. Even if the data is added outside of temporal order, it will be sorted within the channel by time stamp if this field is provided. This way when the file is read it will be read in time order.</p>
 
 <p>After all data has been added to an event, it should be closed. This is done by invoking close_event as follows.</p>
 
 <div class="highlight highlight-c++"><pre><span class="n">outfile</span><span class="p">.</span><span class="n">close_event</span><span class="p">(</span><span class="n">eventHandle</span><span class="p">,</span> <span class="nb">true</span><span class="p">);</span>
 </pre></div>
 
-<p>The second argument is a Boolean telling the program if it should write the event right away. If you are writing events in temporal order, or don't care about the order, this should always be true. If events could come outside of time order and they should be sorted, set it to false (or omit the argument since false is default). The event will be stored in memory. In order to write all events stored in memory, use the write call.</p>
+<p>The second argument is a Boolean telling the program if it should write the event right away. If your events are pre-sorted or if you don't care about the order this can always be true. If events could come outside of time order and they should be sorted, set it to false (or omit the argument since false is default). The event will be stored in memory. In order to write all events stored in memory, use the write call.</p>
 
 <div class="highlight highlight-c++"><pre><span class="n">outfile</span><span class="p">.</span><span class="n">write</span><span class="p">();</span>
 </pre></div>
 
-<p>Note that this is not necessary if you have been closing events with "true" in the second argument. </p>
+<p>The write call can also optionally take a 64-bit integer as an argument. This is a timestamp and will tell the program to write all events up to this timestamp to file. Please note that the internal buffer will blow up in size if the user does not call write. If the buffer gets too large the program will stop reading new events in until it is written out. </p>
 
-<p>Please note: this format is not designed to have a huge number of events in the readout buffer. It will simply store these in memory. This is really meant for events that are just slightly coming at the wrong time (1000 events or so is usually fine for sorting). </p>
+<p>Note that calling write is not necessary if you have always been closing events with "true" in the second argument. </p>
 
 <p>To close the file when everything is finished use:</p>
 
