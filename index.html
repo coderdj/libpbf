@@ -55,13 +55,7 @@
 
 <p>Note that you also need libpthread, but if you are on Ubuntu (and probably other distros) this will likely already be installed. </p>
 
-<p>For now you may have to re-generate the protocol buffer classes with your version of libprotobuf. At a later stage this step will be built into the build scripts. See the protoc/README.rst for more info.</p>
-
-<pre><code>cd protoc
-protoc -I=./ --cpp_out=../src protocDef.proto
-</code></pre>
-
-<p>Now that everything's ready go the top level directory type 'make'. The library should appear in the current directory. You will have to make the library and headers find-able by your compiler in order to use it. </p>
+<p>Now go the top level directory type 'make'. The library should appear in the current directory. You can install the library with 'make install'. This puts it into /usr/local/lib and the includes in /usr/local/include/pbf. If you want it somewhere else set the PREFIX variable in the Makefile.</p>
 
 <h3>
 <a name="writing-to-files" class="anchor" href="#writing-to-files"><span class="octicon octicon-link"></span></a>Writing to Files</h3>
