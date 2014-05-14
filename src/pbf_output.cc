@@ -265,7 +265,7 @@ void pbf_output::WriteThread()
 
 void pbf_output::close_file(bool quiet)
 {
-   if(!quiet) {
+   if(!quiet && m_outfile.is_open()) {
       write();
       while(m_setWriteBuffer.size()!=0 || m_ClosedEvents.size()!=0)
 	bCloseFile=false;
