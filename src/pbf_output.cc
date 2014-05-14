@@ -26,7 +26,8 @@ void pbf_output::SetDefaults()
 {
    m_protoOut = NULL;
    m_protoCOut = NULL;
-   m_iCurrentFileNumber = m_iEventsPerFile = m_iMaxBufferSize = 0;
+   m_iCurrentFileNumber = m_iEventsPerFile =0;
+   m_iMaxBufferSize=1000;
    m_uiEventNumber = 0;
    m_bAlreadySnappified = m_bCompress_snappy = false;
    m_HeaderInfo.identifier="default";
