@@ -26,7 +26,7 @@ stamps, channels have id numbers, files store general data properties.
 Fetch code from github:
 
 ```
-git clone https://github.com/coderdj/pff
+git clone https://github.com/coderdj/libpbf
 ```
 
 Install dependencies. On ubuntu this looks like:
@@ -39,31 +39,23 @@ Other operating systems probably have the required libraries available
 but they will be named differently. Installation on windows or mac
 probably works but isn't supported.
 
-Right now there is not installation script (not yet at least). So you
-have to regenerate the protocol buffer class with your version of
-libprotobuf. Don't worry, it's easy. Assuming you start in the top
-level directory:
-
-```
-cd protoc
-
-protoc -I=./ --cpp_out=../src protoDef.proto
-```
-
-See the readme in the protoc directory if you want to do some other
-fancy stuff, like compile a python class.
-
-Now that everything is done go to the top level directory and type:
+In the top directory type:
 
 ```
 make
-
+```
+```
 make install
 ```
 
 The installation will put the libraries in /usr/local/lib and the
 includes in /usr/local/include. This is optional. If you'd rather you
 can just link the libraries in headers in place.
+
+The makefile automatically compiles the protocol buffer class with
+your version of libprotobuf. If you want access to the class or if you
+want to compile a python class, go to the protoc directory and read
+the instructions there.
 
 More Information
 ----------------
