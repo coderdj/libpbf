@@ -234,11 +234,11 @@ void pbf_output::WriteThread()
 	 //ask if there is enough space in buffer for s
 	 void **dummy;
 	 int datasize = s.size();
-	 while(!m_protoCOut->GetDirectBufferPointer((dummy),
-						    (int*)(&(datasize)))){
-	    usleep(1);
+//	 while(!m_protoCOut->GetDirectBufferPointer((dummy),
+//						    (int*)(&(datasize)))){
+//	    usleep(1);
 //	    	    cout<<"NotEnoughSpace"<<endl;
-	 }
+//	 }
 	    
 	 m_protoCOut->WriteRaw(s.data(),s.size());
 	 

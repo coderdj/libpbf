@@ -67,7 +67,7 @@ int main(int argc, char *argv[])
    can->cd();
    TH1F *waveform = NULL;
    while(FileReader.get_next_event()==0)  {
-          
+      cout<<"Next Event!"<<endl;
       int hEventNumber = FileReader.event_number();
       for(int x=0;x<FileReader.num_channels();x++)	{
 	 char *data;
@@ -94,7 +94,7 @@ int main(int argc, char *argv[])
 	    
 	    bool recordLong=false;
 	    int startBin=0;
-	    if(chosenChannel==-1 && hEventNumber>900)  {
+	    if(chosenChannel==-1 && hEventNumber>=0)  {
 	       chosenChannel = hChannelID;
 	       chosenModule = hModuleID;
 	       startTime = dataTime;

@@ -26,7 +26,7 @@ void pbf_input::Initialize()
 {
    m_Header.start_date = m_Header.creation_date = 0;
    m_Header.identifier = m_Header.run_mode = m_Header.started_by = m_Header.notes = "";
-   m_iCurrentFileNumber = 0;
+   m_iCurrentFileNumber = -1;
    m_bSnappyCompression = false;
    m_gCodedInput=NULL;
    m_gZCInput=NULL;
@@ -42,7 +42,7 @@ pbf_input::~pbf_input()
 int pbf_input::open_file(string path)
 {
    m_sFilePathBase = path;
-   m_iCurrentFileNumber = 0;
+   m_iCurrentFileNumber = -1;
    return OpenNextFile();
 }
 
@@ -71,16 +71,19 @@ int pbf_input::get_event(long long int eventID)
 
 int pbf_input::get_next_event()
 {
-   if(m_infile.eof()){
-      if(OpenNextFile()!=0)	{
-	 cout<<"End of input."<<endl;
-	 return -1;
-      }      
-   }
+   if(!m_infile.is_open())  {
+      cout<<"No file open."<<endl;
+      return -1;
+   }   
    
    //get size
    u_int32_t dataSize = 0;
-   m_gCodedInput->ReadVarint32(&dataSize);
+   while(!m_gCodedInput->ReadVarint32(&dataSize))  {
+      //probable eof
+      if(OpenNextFile()==0) continue;
+      return -1;
+   }
+   
    
    //read from file
    pbf::Event event;
@@ -199,20 +202,21 @@ int pbf_input::OpenNextFile()
    
    string extension = ".pbf";
    string filepath = "";
-   
+   m_iCurrentFileNumber++;
    //Check if file has extension
-   if(m_sFilePathBase[m_sFilePathBase.size()]=='f' &&
-      m_sFilePathBase[m_sFilePathBase.size()-1]=='b' &&
-      m_sFilePathBase[m_sFilePathBase.size()-2]=='p' &&
-      m_sFilePathBase[m_sFilePathBase.size()-3]=='.')
+   if(m_sFilePathBase[m_sFilePathBase.size()-1]=='f' &&
+      m_sFilePathBase[m_sFilePathBase.size()-2]=='b' &&
+      m_sFilePathBase[m_sFilePathBase.size()-3]=='p' &&
+      m_sFilePathBase[m_sFilePathBase.size()-4]=='.')
      filepath = m_sFilePathBase;
    else{   //if not, assume you have a stub
       stringstream fName;
       fName<<m_sFilePathBase<<setfill('0')<<setw(6)<<m_iCurrentFileNumber<<extension;
       filepath=fName.str();
    }   
-   
+   cout<<"Opening file "<<filepath<<endl;
    m_infile.open(filepath.c_str(), ios::in | ios::binary);
+
    if(!m_infile.is_open())  {
       cerr<<"Error opening file."<<endl;
       return -1;
