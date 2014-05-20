@@ -23,30 +23,22 @@ stamps, channels have id numbers, files store general data properties.
 2. Installation 
 -----------------------------------------
     
-Fetch code from github:
+Fetch code from github::
 
-```
-git clone https://github.com/coderdj/libpbf
-```
+    git clone https://github.com/coderdj/libpbf
 
-Install dependencies. On ubuntu this looks like:
+Install dependencies. On ubuntu this looks like::
 
-```
-apt-get install build-essential libsnappy-dev libprotobuf-dev
-```
+    apt-get install build-essential libsnappy-dev libprotobuf-dev
 
 Other operating systems probably have the required libraries available
 but they will be named differently. Installation on windows or mac
 probably works but isn't supported.
 
-In the top directory type:
+In the top directory type::
 
-```
-make
-```
-```
-make install
-```
+    make
+    make install
 
 The installation will put the libraries in /usr/local/lib and the
 includes in /usr/local/include. This is optional. If you'd rather you
