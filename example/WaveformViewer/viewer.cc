@@ -106,7 +106,7 @@ int main(int argc, char *argv[])
 	       cout<<"LONG ONE: STARTBIN="<<startBin<<" "<<dataTime<<" "<<startTime<<" "<<dataTime-startTime<<endl;
 	       recordLong=true;
 	    }
-	    //if(!recordLong) continue;
+	    if(!recordLong) continue;
 	    
 	    for(int z=0;z<datasize/2;z+=2)  {
 	       waveform->SetBinContent(z+1,easierData[z/2]&0xFFFF);
@@ -118,7 +118,7 @@ int main(int argc, char *argv[])
 	       }
 	       
 	    }
-	    waveform->Draw();
+	    longwaveform->Draw();
 	    can->Update();
 	    char dat;
 	    cin>>dat;

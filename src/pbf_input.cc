@@ -76,6 +76,7 @@ int pbf_input::get_next_event()
       return -1;
    }   
    
+repeat:
    //get size
    u_int32_t dataSize = 0;
    while(!m_gCodedInput->ReadVarint32(&dataSize))  {
@@ -83,6 +84,13 @@ int pbf_input::get_next_event()
       if(OpenNextFile()==0) continue;
       return -1;
    }
+   if(dataSize>67108864) //too big, skip and warn
+     {
+	//string dataString="";
+	m_gCodedInput->Skip(dataSize);
+	cout<<"Error, huge event (greater than 67108864 bytes!)"<<endl;
+	goto repeat;
+     }
    
    
    //read from file
