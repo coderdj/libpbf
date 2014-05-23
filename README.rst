@@ -27,11 +27,17 @@ Fetch code from github::
 
     git clone https://github.com/coderdj/libpbf
 
+<<<<<<< HEAD
 
 Install dependencies. On ubuntu this looks like::
 
     apt-get install build-essential libsnappy-dev libprotobuf-dev
 
+=======
+Install dependencies. On ubuntu this looks like::
+
+    apt-get install build-essential libsnappy-dev libprotobuf-dev
+>>>>>>> 1baf42d76e4b5c6d7dba4331bc0c57a26f68dd87
 
 Other operating systems probably have the required libraries available
 but they will be named differently. Installation on windows or mac
