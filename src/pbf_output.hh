@@ -16,6 +16,7 @@
 #include <map>
 #include <set>
 #include <stdexcept>
+#include <unistd.h>
 #include <iomanip>
 #include <sstream>
 #include <fstream>

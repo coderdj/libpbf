@@ -1,6 +1,5 @@
-#libxecluster Makefile
+#libpbf Makefile
 # use 'make' to compile the shared library
-# use 'make exe' to compile the executable tool
 
 PREFIX          = /usr/local
 CC		= g++
@@ -11,11 +10,11 @@ OBJECTS         = $(SOURCES: .cc=.o)
 SO              = libpbf.so
 
 all: $(SO)
+
+$(SO) : $(OBJECTS)
 	echo 'Regenerating protocol buffer classes'
 	protoc -I=protoc/ --cpp_out=src/ protoc/protocDef.proto
 	echo 'done.'
-
-$(SO) : $(OBJECTS)
 	$(CC) $(LDFLAGS) $(OBJECTS) $(CFLAGS) -o $(SO)
 
 install:	
