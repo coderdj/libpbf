@@ -11,11 +11,11 @@ OBJECTS         = $(SOURCES: .cc=.o)
 SO              = libpbf.so
 
 all: $(SO)
+
+$(SO) : $(OBJECTS)
 	echo 'Regenerating protocol buffer classes'
 	protoc -I=protoc/ --cpp_out=src/ protoc/protocDef.proto
 	echo 'done.'
-
-$(SO) : $(OBJECTS)
 	$(CC) $(LDFLAGS) $(OBJECTS) $(CFLAGS) -o $(SO)
 
 install:	

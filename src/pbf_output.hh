@@ -27,6 +27,7 @@
 #include <snappy.h>
 #include <pthread.h>
 #include "dcIndexedList.hh"
+#include <unistd.h>
 
 using namespace std;
 
@@ -227,7 +228,7 @@ class pbf_output
    pthread_mutex_t m_xOutputMutex;
    pthread_mutex_t m_xClosedEventsMutex;
    pthread_t m_WriteThread, m_CopyThread;
-   //   pthread_mutex_t    m_xEventBufferMutex;
+  pthread_mutex_t    m_xEventBufferMutex;
 //   pthread_mutex_t    m_xWriteBufferMutex;
 };
 #endif
