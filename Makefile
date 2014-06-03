@@ -1,6 +1,5 @@
-#libxecluster Makefile
+#libpbf Makefile
 # use 'make' to compile the shared library
-# use 'make exe' to compile the executable tool
 
 PREFIX          = /usr/local
 CC		= g++
