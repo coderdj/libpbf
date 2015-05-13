@@ -87,13 +87,13 @@ int pbf_output::create_event(unsigned long long int timestamp, int &handle)
 }
 
 int pbf_output::add_data(int handle, int channel, char* data, 
-			 size_t dataSize, u_int64_t datatime)
+			 size_t dataSize, u_int64_t datatime, int integral)
 {
-   return add_data(handle,channel,-1,data,dataSize,datatime);
+  return add_data(handle,channel,-1,data,dataSize,datatime, integral);
 }
 
 int pbf_output::add_data(int handle, int channel, int module,  char* data,
-			 size_t dataSize, u_int64_t datatime)
+			 size_t dataSize, u_int64_t datatime, int integral )
 {
   if(dataSize==0) return -1;
   MCPair mc; 
@@ -110,12 +110,14 @@ int pbf_output::add_data(int handle, int channel, int module,  char* data,
 			&compressedLength);
     idata.payload = compressed;
     idata.size = compressedLength;
+    idata.integral = integral;
   }   
   //no compression
   else{	
     idata.payload = new char[dataSize];
     copy(data,data+dataSize,idata.payload);// = data;
     idata.size = dataSize;
+    idata.integral = integral;
    }   
 
   pthread_mutex_lock(&m_OpenEvents[handle]->EventMutex);
@@ -189,6 +191,7 @@ void pbf_output::CopyThread()
 	    dataIt!=chIt->second.data.end(); dataIt++)  {		 
 	  pbf::Event_Channel_Data *ecd = pbChannel->add_data();
 	  ecd->set_payload((const void*)(*dataIt).payload,(*dataIt).size);
+	  if((*dataIt).integral!=0) ecd->set_integral((*dataIt).integral);
 	  if((*dataIt).timestamp!=0) ecd->set_time((*dataIt).timestamp);
 	  delete[] (*dataIt).payload;
 	}//end data loop

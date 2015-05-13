@@ -170,7 +170,8 @@ int pbf_input::get_channel_handle(int channelid, int moduleid)
 }
 
 int pbf_input::get_data(int channelindex, int dataindex, char*&data, 
-			unsigned int &size, long long int &dataTime)
+			unsigned int &size, long long int &dataTime, 
+			int &integral )
 {
    if(!m_bHasEvent) return -1;
    if(channelindex>m_CurrentEvent.channel_size()) return -1;
@@ -181,6 +182,10 @@ int pbf_input::get_data(int channelindex, int dataindex, char*&data,
    //get time if there
    if(Data.has_time()) dataTime = Data.time();
    else dataTime = 0;
+
+   //get integral if there
+   if(Data.has_integral()) integral = Data.integral();
+   else integral = 0;
   
    //extract data
    string payload = Data.payload();

@@ -113,20 +113,30 @@ class Event_Channel_Data : public ::google::protobuf::Message {
   inline ::google::protobuf::int64 time() const;
   inline void set_time(::google::protobuf::int64 value);
 
+  // optional int32 integral = 3;
+  inline bool has_integral() const;
+  inline void clear_integral();
+  static const int kIntegralFieldNumber = 3;
+  inline ::google::protobuf::int32 integral() const;
+  inline void set_integral(::google::protobuf::int32 value);
+
   // @@protoc_insertion_point(class_scope:pbf.Event.Channel.Data)
  private:
   inline void set_has_payload();
   inline void clear_has_payload();
   inline void set_has_time();
   inline void clear_has_time();
+  inline void set_has_integral();
+  inline void clear_has_integral();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
   ::std::string* payload_;
   ::google::protobuf::int64 time_;
+  ::google::protobuf::int32 integral_;
 
   mutable int _cached_size_;
-  ::google::protobuf::uint32 _has_bits_[(2 + 31) / 32];
+  ::google::protobuf::uint32 _has_bits_[(3 + 31) / 32];
 
   friend void  protobuf_AddDesc_protocDef_2eproto();
   friend void protobuf_AssignDesc_protocDef_2eproto();
@@ -618,6 +628,28 @@ inline ::google::protobuf::int64 Event_Channel_Data::time() const {
 inline void Event_Channel_Data::set_time(::google::protobuf::int64 value) {
   set_has_time();
   time_ = value;
+}
+
+// optional int32 integral = 3;
+inline bool Event_Channel_Data::has_integral() const {
+  return (_has_bits_[0] & 0x00000004u) != 0;
+}
+inline void Event_Channel_Data::set_has_integral() {
+  _has_bits_[0] |= 0x00000004u;
+}
+inline void Event_Channel_Data::clear_has_integral() {
+  _has_bits_[0] &= ~0x00000004u;
+}
+inline void Event_Channel_Data::clear_integral() {
+  integral_ = 0;
+  clear_has_integral();
+}
+inline ::google::protobuf::int32 Event_Channel_Data::integral() const {
+  return integral_;
+}
+inline void Event_Channel_Data::set_integral(::google::protobuf::int32 value) {
+  set_has_integral();
+  integral_ = value;
 }
 
 // -------------------------------------------------------------------

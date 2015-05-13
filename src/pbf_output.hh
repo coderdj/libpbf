@@ -63,6 +63,7 @@ struct InsertData
    char* payload;
    size_t size;
    u_int64_t timestamp;
+   int integral;
    bool operator<(const InsertData& rhs)  const {
       if(timestamp==0) return true;
       return (timestamp<rhs.timestamp ? true : false);
@@ -162,8 +163,10 @@ class pbf_output
    //     to note that these functions TAKE OWNERSHIP of char* data and will delete
    //     it when they are finished with it.
    // 
-   int add_data(int handle, int channel, char* data, size_t dataSize, u_int64_t dataTime=0);
-   int add_data(int handle, int channel, int module, char* data, size_t dataSize, u_int64_t dataTime=0);
+  int add_data(int handle, int channel, char* data, size_t dataSize, 
+	       u_int64_t dataTime=0, int integral=0);
+   int add_data(int handle, int channel, int module, char* data, 
+		size_t dataSize, u_int64_t dataTime=0, int integral=0);
    //
    // void close_event(int handle, bool write=false)
    //   : If you are done adding data to an event, close it and put it in the output buffer

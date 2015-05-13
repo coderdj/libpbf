@@ -77,9 +77,10 @@ void protobuf_AssignDesc_protocDef_2eproto() {
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(Event_Channel));
   Event_Channel_Data_descriptor_ = Event_Channel_descriptor_->nested_type(0);
-  static const int Event_Channel_Data_offsets_[2] = {
+  static const int Event_Channel_Data_offsets_[3] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Event_Channel_Data, payload_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Event_Channel_Data, time_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Event_Channel_Data, integral_),
   };
   Event_Channel_Data_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -156,16 +157,16 @@ void protobuf_AddDesc_protocDef_2eproto() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
-    "\n\017protocDef.proto\022\003pbf\"\277\001\n\005Event\022\016\n\006numb"
+    "\n\017protocDef.proto\022\003pbf\"\322\001\n\005Event\022\016\n\006numb"
     "er\030\001 \002(\003\022\014\n\004time\030\002 \002(\004\022#\n\007channel\030\003 \003(\0132"
-    "\022.pbf.Event.Channel\032s\n\007Channel\022\n\n\002id\030\001 \002"
-    "(\005\022\016\n\006module\030\003 \001(\005\022%\n\004data\030\002 \003(\0132\027.pbf.E"
-    "vent.Channel.Data\032%\n\004Data\022\017\n\007payload\030\001 \002"
-    "(\014\022\014\n\004time\030\002 \001(\003\"\237\001\n\006Header\022\016\n\006zipped\030\001 "
-    "\002(\010\022\021\n\tstartdate\030\002 \002(\003\022\024\n\014creationdate\030\003"
-    " \002(\003\022\025\n\rrunidentifier\030\004 \002(\t\022\022\n\nfilenumbe"
-    "r\030\005 \002(\005\022\017\n\007runmode\030\006 \001(\t\022\021\n\tstartedby\030\007 "
-    "\001(\t\022\r\n\005notes\030\010 \001(\t", 378);
+    "\022.pbf.Event.Channel\032\205\001\n\007Channel\022\n\n\002id\030\001 "
+    "\002(\005\022\016\n\006module\030\003 \001(\005\022%\n\004data\030\002 \003(\0132\027.pbf."
+    "Event.Channel.Data\0327\n\004Data\022\017\n\007payload\030\001 "
+    "\002(\014\022\014\n\004time\030\002 \001(\003\022\020\n\010integral\030\003 \001(\005\"\237\001\n\006"
+    "Header\022\016\n\006zipped\030\001 \002(\010\022\021\n\tstartdate\030\002 \002("
+    "\003\022\024\n\014creationdate\030\003 \002(\003\022\025\n\rrunidentifier"
+    "\030\004 \002(\t\022\022\n\nfilenumber\030\005 \002(\005\022\017\n\007runmode\030\006 "
+    "\001(\t\022\021\n\tstartedby\030\007 \001(\t\022\r\n\005notes\030\010 \001(\t", 397);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "protocDef.proto", &protobuf_RegisterTypes);
   Event::default_instance_ = new Event();
@@ -191,6 +192,7 @@ struct StaticDescriptorInitializer_protocDef_2eproto {
 #ifndef _MSC_VER
 const int Event_Channel_Data::kPayloadFieldNumber;
 const int Event_Channel_Data::kTimeFieldNumber;
+const int Event_Channel_Data::kIntegralFieldNumber;
 #endif  // !_MSC_VER
 
 Event_Channel_Data::Event_Channel_Data()
@@ -211,6 +213,7 @@ void Event_Channel_Data::SharedCtor() {
   _cached_size_ = 0;
   payload_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
   time_ = GOOGLE_LONGLONG(0);
+  integral_ = 0;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -255,6 +258,7 @@ void Event_Channel_Data::Clear() {
       }
     }
     time_ = GOOGLE_LONGLONG(0);
+    integral_ = 0;
   }
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
   mutable_unknown_fields()->Clear();
@@ -291,6 +295,22 @@ bool Event_Channel_Data::MergePartialFromCodedStream(
         } else {
           goto handle_uninterpreted;
         }
+        if (input->ExpectTag(24)) goto parse_integral;
+        break;
+      }
+
+      // optional int32 integral = 3;
+      case 3: {
+        if (::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT) {
+         parse_integral:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &integral_)));
+          set_has_integral();
+        } else {
+          goto handle_uninterpreted;
+        }
         if (input->ExpectAtEnd()) return true;
         break;
       }
@@ -324,6 +344,11 @@ void Event_Channel_Data::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteInt64(2, this->time(), output);
   }
 
+  // optional int32 integral = 3;
+  if (has_integral()) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(3, this->integral(), output);
+  }
+
   if (!unknown_fields().empty()) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
@@ -342,6 +367,11 @@ void Event_Channel_Data::SerializeWithCachedSizes(
   // optional int64 time = 2;
   if (has_time()) {
     target = ::google::protobuf::internal::WireFormatLite::WriteInt64ToArray(2, this->time(), target);
+  }
+
+  // optional int32 integral = 3;
+  if (has_integral()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(3, this->integral(), target);
   }
 
   if (!unknown_fields().empty()) {
@@ -367,6 +397,13 @@ int Event_Channel_Data::ByteSize() const {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::Int64Size(
           this->time());
+    }
+
+    // optional int32 integral = 3;
+    if (has_integral()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(
+          this->integral());
     }
 
   }
@@ -402,6 +439,9 @@ void Event_Channel_Data::MergeFrom(const Event_Channel_Data& from) {
     if (from.has_time()) {
       set_time(from.time());
     }
+    if (from.has_integral()) {
+      set_integral(from.integral());
+    }
   }
   mutable_unknown_fields()->MergeFrom(from.unknown_fields());
 }
@@ -428,6 +468,7 @@ void Event_Channel_Data::Swap(Event_Channel_Data* other) {
   if (other != this) {
     std::swap(payload_, other->payload_);
     std::swap(time_, other->time_);
+    std::swap(integral_, other->integral_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
     std::swap(_cached_size_, other->_cached_size_);

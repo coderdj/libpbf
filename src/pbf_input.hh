@@ -95,7 +95,7 @@ class pbf_input
    //     to the data timestamp if there is one, otherwise datatime is set to zero.
    // 
    int get_data(int channelindex, int dataindex, char *&data, 
-		unsigned int &size, long long int &dataTime);
+		unsigned int &size, long long int &dataTime, int &integral);
    
    HeaderData Header()  {
       return m_Header;
